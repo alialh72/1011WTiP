@@ -11,18 +11,19 @@
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
 // Controller1          controller                    
-// LeftDrive            motor_group   2, 3            
-// RightDrive           motor_group   8, 9            
-// LeftDriveUp          motor         1               
-// RightDriveUp         motor         7               
-// TWLeft               encoder       A, B            
-// TWRight              encoder       C, D            
-// TWHorizontal         encoder       E, F            
-// Expander             triport       5               
+// LeftDrive            motor_group   8, 7            
+// RightDrive           motor_group   4, 5            
+// LeftDriveUp          motor         9               
+// RightDriveUp         motor         3               
+// TWLeft               encoder       C, D            
+// TWRight              encoder       E, F            
+// TWHorizontal         encoder       G, H            
+// Expander             triport       11              
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
 #include <cmath>
+#include "pure-pursuit.h"
 
 using namespace vex;
 
@@ -75,6 +76,22 @@ void usercontrol(void) {
     LeftDriveUp.spin(forward, motorForwardVolts + motorTurnVolts, voltageUnits::volt);
     RightDrive.spin(forward, motorForwardVolts - motorTurnVolts, voltageUnits::volt);
     RightDriveUp.spin(forward, motorForwardVolts - motorTurnVolts, voltageUnits::volt);
+
+    fullOdomCycle();
+    Brain.Screen.clearScreen();
+    Brain.Screen.setCursor(1,1);
+    Brain.Screen.print(absPos[0]);
+    Brain.Screen.newLine();
+    Brain.Screen.print(absPos[1]);
+    Brain.Screen.newLine();
+    Brain.Screen.print("abs orientation: %f", absOrientation * 180 / M_PI);
+    Brain.Screen.newLine();
+    Brain.Screen.print("BackWheel: %f", deltaBT);
+    Brain.Screen.newLine();
+    Brain.Screen.print("RightWheel: %f", totalDeltaRT);
+    Brain.Screen.newLine();
+    Brain.Screen.print("LeftWheel: %f", totalDeltaLT);
+
 
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources.

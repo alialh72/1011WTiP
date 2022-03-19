@@ -19,6 +19,11 @@ void updatePrevVals(){
   prevLTval = lTval;
   prevRTval = rTval;
   prevBTval = bTval;
+
+  prevGblOrientation = absOrientation;
+
+  prevGblPos[0] = absPos[0];
+  prevGblPos[1] = absPos[1];
 }
 
 
@@ -64,4 +69,17 @@ void calcGblOffset(){
 void calcAbsPos(){
   absPos[0] = prevGblPos[0] + gblOffset[0];
   absPos[1] = prevGblPos[1] + gblOffset[1];
+}
+
+void fullOdomCycle() {
+  storeVals();
+  getChangeCycle();
+  updatePrevVals();
+  calcChangeReset();
+  calcAbsOrientation();
+  calcChangeAngle();
+  calcLclOffset();
+  calcAvgOrientation();
+  calcGblOffset();
+  calcAbsPos();
 }

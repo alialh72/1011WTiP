@@ -35,9 +35,9 @@ inline double absPos[2]= {0,0};
 //--------__Parameters__--------//
 
 inline double wheelDiameter = 2.75; //wheel diameter 
-inline double lTCentre = 1; // Left Tracking Wheel distance to centre: Sl
-inline double rTCentre = 1; // Right Tracking Wheel distance to centre: Sr
-inline double bTCentre = 1; // Back Tracking Wheel distance to centre: Ss
+inline double lTCentre = 1.5; // Left Tracking Wheel distance to centre: Sl
+inline double rTCentre = 1.5; // Right Tracking Wheel distance to centre: Sr
+inline double bTCentre = 3.5; // Back Tracking Wheel distance to centre: Ss
 
 
 //--------__Functions__--------//

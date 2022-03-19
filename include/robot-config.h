@@ -12,6 +12,12 @@ extern encoder TWLeft;
 extern encoder TWRight;
 extern encoder TWHorizontal;
 extern triport Expander;
+extern motor FBLift;
+extern digital_out BackClamp;
+extern digital_out BackTilter1;
+extern digital_out BackTilter2;
+extern rotation FBLiftRotation;
+extern inertial InertialSensor;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.

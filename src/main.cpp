@@ -11,14 +11,20 @@
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
 // Controller1          controller                    
-// LeftDrive            motor_group   8, 7            
-// RightDrive           motor_group   4, 5            
-// LeftDriveUp          motor         9               
-// RightDriveUp         motor         3               
+// LeftDrive            motor_group   8, 12           
+// RightDrive           motor_group   2, 14           
+// LeftDriveUp          motor         4               
+// RightDriveUp         motor         1               
 // TWLeft               encoder       C, D            
 // TWRight              encoder       E, F            
 // TWHorizontal         encoder       G, H            
 // Expander             triport       11              
+// FBLift               motor         21              
+// BackClamp            digital_out   E               
+// BackTilter1          digital_out   F               
+// BackTilter2          digital_out   G               
+// FBLiftRotation       rotation      10              
+// InertialSensor       inertial      9               
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
@@ -63,6 +69,8 @@ void usercontrol(void) {
   RightDrive.setStopping(hold);
   RightDriveUp.setStopping(hold);
 
+
+
   while (1) {
     //---------------Drivetrain---------------
     double motorForwardVal = Controller1.Axis3.position(percent);
@@ -76,6 +84,16 @@ void usercontrol(void) {
     LeftDriveUp.spin(forward, motorForwardVolts + motorTurnVolts, voltageUnits::volt);
     RightDrive.spin(forward, motorForwardVolts - motorTurnVolts, voltageUnits::volt);
     RightDriveUp.spin(forward, motorForwardVolts - motorTurnVolts, voltageUnits::volt);
+
+    if (Controller1.ButtonR1.pressing()) {
+      FBLift.spin(forward, 12, voltageUnits::volt);
+    } else if (Controller1.ButtonR2.pressing()) {
+      FBLift.spin(reverse, 12, voltageUnits::volt);
+    } else {
+      FBLift.stop(brakeType::hold);
+    }
+
+    
 
     fullOdomCycle();
     Brain.Screen.clearScreen();

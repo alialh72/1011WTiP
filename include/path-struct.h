@@ -2,19 +2,55 @@
 #include <cmath>
 #include <deque>
 
+struct Point {
+  double x, y;
+
+  double distanceFromStart;
+  double curavture;
+
+  double globalHeading;
+
+  double targetXVelocity, targetYVelocity;
+
+  void setCoordinates (std::vector<double> points) {
+    x = points.at(0);
+    y = points.at(1);
+  }
+
+  void setDistance (double pointDistance){
+    distanceFromStart = pointDistance;
+  }
+
+  void setCurvature (double pointCurvature){
+    curavture = pointCurvature;
+  }
+
+  Point(std::vector<double> point){
+    x = point.at(0);
+    y = point.at(1);
+  }
+
+};
+
+
 struct Path {
   //deque is used here instead of vector as it makes it easy to push points to the front
   //point --> a vector of [x,y]
-  std::deque<std::vector<double>> points;
+  std::deque<Point> points;
 
   //returns a point
-  std::vector<double> getPoint(double t) {
-      return points.at(t);
+  Point getPoint(double t) {
+    return points.at(t);
   }
   
   //adds a point
-  void addPoint(std::vector<double> point){
-      points.push_back(point);
+  void addPoint(Point point){
+    points.push_back(point);
+  }
+
+  void addPointVector(std::vector<double> vPoint){
+    Point point(vPoint);
+    points.push_back(point);
   }
 };
 
@@ -26,13 +62,27 @@ struct Segment {
 
 
 //return the magnitude of a vector: c^2 = a^2 + b^2
-inline double getMagnitude(std::vector<double> point) {
-    return sqrt( pow(point.at(0), 2) + pow(point.at(1), 2) );
+inline double getMagnitude(Point point) {
+    return sqrt( pow(point.x, 2) + pow(point.y, 2) );
 }
 
 
 
 //calculates the distance between 2 vectors
-inline double getDistance(std::vector<double> p0, std::vector<double> p1) {
-    return getMagnitude({p1.at(0) - p0.at(0), p1.at(1) - p1.at(1)});
+inline double getDistance(Point p0, Point p1) {
+    return getMagnitude(Point({p1.x - p0.x, p1.y - p1.y}));
+}
+
+//gets the curvature of a point (p1)
+inline double getCurvature(Point p1, Point p2, Point p3) {
+  double k1 = 0.5*( pow(p1.x,2) + pow(p1.y, 2) - pow(p2.x,2) - pow(p2.y,2)   ) /(p1.x - p2.x +0.0001);
+  double k2=(p1.y - p2.y)/(p1.x - p2.x);
+
+  double b= 0.5*( pow(p2.x,2) - 2*p2.x *k1 + pow(p2.y,2) - pow(p3.x,2) +2* p3.x *k1 - pow(p3.y,2))/(p3.x *k2 -p3.y +p2.y -p2.x *k2);
+  double a=k1 - k2 *b;
+
+  double r = sqrt( pow((p1.x - a),2) +pow((p1.y - b),2) );
+  double curvature = 1/r;
+
+  return curvature;
 }

@@ -6,23 +6,32 @@ struct Point {
   double x, y;
 
   double distanceFromStart;
-  double curavture;
+  double curvature;
 
   double globalHeading;
 
-  double targetXVelocity, targetYVelocity;
+  double maximumVelocity;
+  double targetVelocity;
 
   void setCoordinates (std::vector<double> points) {
     x = points.at(0);
     y = points.at(1);
   }
 
-  void setDistance (double pointDistance){
-    distanceFromStart = pointDistance;
+  void setDistance (double distanceFromStart){
+    this -> distanceFromStart = distanceFromStart;
   }
 
-  void setCurvature (double pointCurvature){
-    curavture = pointCurvature;
+  void setCurvature (double curvature){
+    this -> curvature = curvature;
+  }
+
+  void setMaxVelocity (double maximumVelocity){
+    this -> maximumVelocity = maximumVelocity;
+  }
+
+  void setTargetVelocity (double targetVelocity){
+    this -> targetVelocity = targetVelocity;
   }
 
   Point(std::vector<double> point){
@@ -56,25 +65,27 @@ struct Path {
 
 
 struct Segment {
-    std::vector<double> a, b, c, d;
+  std::vector<double> a, b, c, d;
 };
 
 
 
 //return the magnitude of a vector: c^2 = a^2 + b^2
 inline double getMagnitude(Point point) {
-    return sqrt( pow(point.x, 2) + pow(point.y, 2) );
+  return sqrt( pow(point.x, 2) + pow(point.y, 2) );
 }
 
 
 
 //calculates the distance between 2 vectors
 inline double getDistance(Point p0, Point p1) {
-    return getMagnitude(Point({p1.x - p0.x, p1.y - p1.y}));
+  return getMagnitude(Point({p1.x - p0.x, p1.y - p1.y}));
 }
 
 //gets the curvature of a point (p1)
-inline double getCurvature(Point p1, Point p2, Point p3) {
+inline double calcCurvature(Point p1, Point p2, Point p3) {
+
+  //find radius
   double k1 = 0.5*( pow(p1.x,2) + pow(p1.y, 2) - pow(p2.x,2) - pow(p2.y,2)   ) /(p1.x - p2.x +0.0001);
   double k2=(p1.y - p2.y)/(p1.x - p2.x);
 
@@ -82,6 +93,8 @@ inline double getCurvature(Point p1, Point p2, Point p3) {
   double a=k1 - k2 *b;
 
   double r = sqrt( pow((p1.x - a),2) +pow((p1.y - b),2) );
+
+  //curvature = 1/radius
   double curvature = 1/r;
 
   return curvature;

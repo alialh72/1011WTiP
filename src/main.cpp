@@ -29,7 +29,7 @@
 
 #include "vex.h"
 #include <cmath>
-#include "pure-pursuit.h"
+#include "odom.h"
 
 using namespace vex;
 
@@ -69,6 +69,11 @@ void usercontrol(void) {
   RightDrive.setStopping(hold);
   RightDriveUp.setStopping(hold);
 
+  InertialSensor.calibrate();
+  while(InertialSensor.isCalibrating()){
+    wait(20, msec);
+  }
+  InertialSensor.resetRotation();
 
 
   while (1) {
@@ -85,9 +90,9 @@ void usercontrol(void) {
     RightDrive.spin(forward, motorForwardVolts - motorTurnVolts, voltageUnits::volt);
     RightDriveUp.spin(forward, motorForwardVolts - motorTurnVolts, voltageUnits::volt);
 
-    if (Controller1.ButtonR1.pressing()) {
+    if (Controller1.ButtonL1.pressing()) {
       FBLift.spin(forward, 12, voltageUnits::volt);
-    } else if (Controller1.ButtonR2.pressing()) {
+    } else if (Controller1.ButtonL2.pressing()) {
       FBLift.spin(reverse, 12, voltageUnits::volt);
     } else {
       FBLift.stop(brakeType::hold);
@@ -98,11 +103,11 @@ void usercontrol(void) {
     fullOdomCycle();
     Brain.Screen.clearScreen();
     Brain.Screen.setCursor(1,1);
-    Brain.Screen.print(absPos[0]);
+    Brain.Screen.print(gblOffset[0]);
     Brain.Screen.newLine();
-    Brain.Screen.print(absPos[1]);
+    Brain.Screen.print(gblOffset[1]);
     Brain.Screen.newLine();
-    Brain.Screen.print("abs orientation: %f", absOrientation * 180 / M_PI);
+    Brain.Screen.print("abs orientation: %f", deltaOrientation * 180 /M_1_PI);
     Brain.Screen.newLine();
     Brain.Screen.print("BackWheel: %f", deltaBT);
     Brain.Screen.newLine();

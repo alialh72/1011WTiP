@@ -21,9 +21,6 @@ void updatePrevVals(){
   prevBTval = bTval;
 
   prevGblOrientation = absOrientation;
-
-  prevGblPos[0] = absPos[0];
-  prevGblPos[1] = absPos[1];
 }
 
 
@@ -33,7 +30,8 @@ void calcChangeReset(){
 }
 
 void calcAbsOrientation(){
-  absOrientation = resetGblOrientation + (  (totalDeltaLT - totalDeltaRT) / (lTCentre + rTCentre)  );
+ //absOrientation = resetGblOrientation + (  (totalDeltaLT - totalDeltaRT) / (lTCentre + rTCentre)  );
+ absOrientation = InertialSensor.rotation() * M_PI / 180;
 }
 
 void calcChangeAngle(){
@@ -69,6 +67,9 @@ void calcGblOffset(){
 void calcAbsPos(){
   absPos[0] = prevGblPos[0] + gblOffset[0];
   absPos[1] = prevGblPos[1] + gblOffset[1];
+
+  prevGblPos[0] = absPos[0];
+  prevGblPos[1] = absPos[1];
 }
 
 void fullOdomCycle() {

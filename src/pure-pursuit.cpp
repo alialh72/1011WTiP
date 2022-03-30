@@ -1,9 +1,5 @@
 #include "pure-pursuit.h"
 
-// double GetDistanceAtPoint(int i) {
-
-// }
-
 
 int RunOdom() {
   while (enableOdom) {
@@ -88,10 +84,41 @@ void PreAutonPurePursuit() {
   finalPath = FillPointVals(finalPath);
 
 
-
-
 }
 
+int FollowPath() {
+
+  while (enableFollowPath) {
+    //______Find closest point______
+    //Start at prev point index +1
+
+    //by default, set shortest distance to distance from last point
+    double shortestDistance = getDistance(Point({absPos[0], absPos[1]}), finalPath.getPoint(finalPath.points.size()-1));
+    double shortestIndex = finalPath.points.size()-1;
+    
+    for (int i = prevClosestPointIndex + 1; i < finalPath.points.size(); i++) {
+      double robotDistance = getDistance(Point({absPos[0], absPos[1]}), finalPath.getPoint(i));
+
+      if (robotDistance > shortestDistance) {
+        shortestDistance = robotDistance;
+        shortestIndex = i;
+      }
+    }
+
+    //______Find lookahead point______
+
+    for (int i = 0; i < finalPath.points.size(); i++) {
+      //Line Segment
+
+
+
+    }
+
+
+  }
+  
+  return 1;
+}
 
 
 void PurePursuitController(){

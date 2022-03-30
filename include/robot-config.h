@@ -18,6 +18,8 @@ extern digital_out BackTilter1;
 extern digital_out BackTilter2;
 extern rotation FBLiftRotation;
 extern inertial InertialSensor;
+extern distance FrontDistance;
+extern digital_out FrontClamp;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.

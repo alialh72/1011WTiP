@@ -41,6 +41,97 @@ struct Point {
 
 };
 
+//return the magnitude of a vector: c^2 = a^2 + b^2
+inline double getMagnitude(Point point) {
+  return sqrt( pow(point.x, 2) + pow(point.y, 2) );
+}
+
+
+//calculates the distance between 2 vectors
+inline double getDistance(Point p0, Point p1) {
+  return getMagnitude(Point({p1.x - p0.x, p1.y - p1.y}));
+}
+
+struct Vector {
+  double magnitude;
+  double thetaHeading;
+  int quadrant;
+
+  double Dot(Vector b) {
+    return magnitude * b.magnitude * cos(std::abs(b.thetaHeading - thetaHeading));
+  }
+
+  Vector(Point p1, Point p2) {
+    //__Vector magnitude
+    magnitude = getDistance(p1, p2);
+
+    //__Determine quadrant__
+
+    //quadrant 1:  x2 > 1 & y2 > y1    
+    if (p2.x > p1.x && p2.y > p1.y) {
+      double insideAngle = asin( std::abs(p2.x - p1.x) /  magnitude ); 
+      quadrant = 1;
+      thetaHeading = insideAngle;
+    }
+
+    //quadrant 2:  x2 > x1 & y1 > y2    
+    else if (p2.x > p1.x && p1.y > p2.y) {
+      double insideAngle = asin( std::abs(p1.y - p2.y) /  magnitude ); 
+      quadrant = 2;
+      thetaHeading = insideAngle + (M_PI/2);
+    }
+
+    //quadrant 3:  x1 > x2 & y1 > y2    
+    else if (p1.x > p2.x && p1.y > p2.y) {
+      double insideAngle = asin( std::abs(p2.y - p1.y) /  magnitude ); 
+      quadrant = 3;
+      thetaHeading = (3*M_PI/2) - insideAngle ;
+    }
+
+    //quadrant 4:  x1 > x2 & y2 > y1    
+    else if (p1.x > p2.x && p2.y > p1.y) {
+      double insideAngle = asin( std::abs(p2.x - p1.x) /  magnitude ); 
+      quadrant = 4;
+      thetaHeading = (2*M_PI) - insideAngle;
+    }
+
+    //quadrant 5: straight up y2 > y1 && x2 == x1
+    else if (p1.x == p2.x && p2.y > p1.y) {
+      double insideAngle = 0; 
+      quadrant = 5;
+      thetaHeading = insideAngle;
+    }
+
+    //quadrant 6: straight right y2 == y1 && x2 > x1
+    else if (p2.x > p1.x && p2.y == p1.y) {
+      double insideAngle = M_PI/2; 
+      quadrant = 6;
+      thetaHeading = insideAngle;
+    }
+
+    //quadrant 7: straight up y2 > y1 && x2 = x1
+    else if (p1.x == p2.x && p1.y > p2.y) {
+      double insideAngle = M_PI; 
+      quadrant = 7;
+      thetaHeading = insideAngle;
+    }
+
+    //quadrant 8: straight up y2 > y1 && x2 = x1
+    else if (p1.x > p2.x && p2.y == p1.y) {
+      double insideAngle = 3*M_PI/2; 
+      quadrant = 8;
+      thetaHeading = insideAngle;
+    }
+
+    else {
+      thetaHeading = 0;
+    }
+
+    
+  }
+
+};
+
 
 struct Path {
   //deque is used here instead of vector as it makes it easy to push points to the front
@@ -69,19 +160,6 @@ struct Segment {
 };
 
 
-
-//return the magnitude of a vector: c^2 = a^2 + b^2
-inline double getMagnitude(Point point) {
-  return sqrt( pow(point.x, 2) + pow(point.y, 2) );
-}
-
-
-
-//calculates the distance between 2 vectors
-inline double getDistance(Point p0, Point p1) {
-  return getMagnitude(Point({p1.x - p0.x, p1.y - p1.y}));
-}
-
 //gets the curvature of a point (p1)
 inline double calcCurvature(Point p1, Point p2, Point p3) {
 
@@ -98,4 +176,35 @@ inline double calcCurvature(Point p1, Point p2, Point p3) {
   double curvature = 1/r;
 
   return curvature;
+}
+
+inline double calcIntersection(Point E, Point L, Point C, double radius) {
+  double t1, t2;
+  Vector d(E, L);
+  Vector f(C, E);
+ 
+  double a =  d.Dot(d);
+  double b = 2*f.Dot(d);
+  double c = f.Dot(f) - radius*radius; 
+  double discriminant = (b*b)- (4*a*c);
+
+  if (discriminant < 0) {
+    return 0; // no intersection
+  } 
+  else{
+    discriminant = sqrt(discriminant);
+    t1 = (-b - discriminant)/(2*a);
+    t2 = (-b + discriminant)/(2*a);
+
+    if (t1 >= 0 && t1 <=1){ 
+      //return t1 intersection
+      return t1;
+    }
+    if (t2 >= 0 && t2 <=1){
+      //return t2
+      return t2;
+    }
+    return 0; //return no intersection
+  }
+
 }

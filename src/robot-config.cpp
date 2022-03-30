@@ -27,6 +27,8 @@ digital_out BackTilter1 = digital_out(Brain.ThreeWirePort.F);
 digital_out BackTilter2 = digital_out(Brain.ThreeWirePort.G);
 rotation FBLiftRotation = rotation(PORT10, false);
 inertial InertialSensor = inertial(PORT9);
+distance FrontDistance = distance(PORT6);
+digital_out FrontClamp = digital_out(Brain.ThreeWirePort.A);
 
 // VEXcode generated functions
 // define variable for remote controller enable/disable

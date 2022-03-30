@@ -25,6 +25,8 @@
 // BackTilter2          digital_out   G               
 // FBLiftRotation       rotation      10              
 // InertialSensor       inertial      9               
+// FrontDistance        distance      6               
+// FrontClamp           digital_out   A               
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
@@ -59,6 +61,27 @@ void autonomous(void) {
 /*                              User Control Task                            */
 /*---------------------------------------------------------------------------*/
 
+void FrontClampOpen() { FrontClamp.set(true); } //open clamp
+void FrontClampClose() { FrontClamp.set(false); } //close clamp
+
+void BackOpen() { 
+  //set tilters to extended state
+  BackTilter1.set(false);
+  BackTilter2.set(false);
+
+  //set clamp to closed state
+  BackClamp.set(true);
+} 
+
+void BackClose() {
+  //set tilters to closed state
+  BackTilter1.set(true);
+  BackTilter2.set(true);
+
+  //set clamp to extended state
+  BackClamp.set(false);
+}
+
 void usercontrol(void) {
 
   //---------------Settings---------------
@@ -90,6 +113,7 @@ void usercontrol(void) {
     RightDrive.spin(forward, motorForwardVolts - motorTurnVolts, voltageUnits::volt);
     RightDriveUp.spin(forward, motorForwardVolts - motorTurnVolts, voltageUnits::volt);
 
+    //Four Bar Lift
     if (Controller1.ButtonL1.pressing()) {
       FBLift.spin(forward, 12, voltageUnits::volt);
     } else if (Controller1.ButtonL2.pressing()) {
@@ -98,7 +122,14 @@ void usercontrol(void) {
       FBLift.stop(brakeType::hold);
     }
 
-    
+    //Front Clamp
+    Controller1.ButtonR1.pressed(FrontClampOpen);
+    Controller1.ButtonR2.pressed(FrontClampClose);
+
+    //Back Clamp and Tilters
+    Controller1.ButtonUp.pressed(BackOpen);
+    Controller1.ButtonDown.pressed(BackOpen);
+
 
     fullOdomCycle();
     Brain.Screen.clearScreen();

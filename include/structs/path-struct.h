@@ -6,6 +6,15 @@
 #include <deque>
 #include "point-struct.h"
 
+/*
+
+..Units..
+
+Lengths : Inches
+Angles : Radians
+
+*/
+
 struct Vector {
   double magnitude;
   double thetaHeading;

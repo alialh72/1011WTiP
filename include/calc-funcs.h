@@ -60,7 +60,9 @@ inline double calcIntersection(Point startSegment, Point endSegment, Point robot
 inline double calcFractionalT(Path path, Point robotPos, double lookahead) {
 
   double largestTVal = 0;
+  //loop through path up until last point
   for (int i = 0; i < path.points.size()-1; i++) {
+    //start and end points of vector
     Point startPoint = path.getPoint(i);
     Point endPoint = path.getPoint(i + 1);
 

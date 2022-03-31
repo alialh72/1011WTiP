@@ -104,7 +104,7 @@ int FollowPath() {
 void PreAutonPurePursuit() {
   //Define path:
   //  --> Define a set of waypoints for the robot to follow
-  desiredPath.points = { Point({1,3}), Point({3,4})};
+  desiredPath.points = { Point({1,3}), Point({3,4})};  //replace with actual path values
 
   //Smooth path
   finalPath = GenerateSmoothPath(desiredPath);

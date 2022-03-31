@@ -5,6 +5,15 @@
 #include <cmath>
 #include <deque>
 
+/*
+
+..Units..
+
+Lengths : Inches
+Angles : Radians
+
+*/
+
 struct Point {
   double x, y;
 
@@ -43,7 +52,7 @@ struct Point {
   }
 
   Point() {
-    
+    //empty constructor
   }
 
 };
@@ -54,7 +63,7 @@ inline double getMagnitude(Point point) {
 }
 
 
-//calculates the distance between 2 vectors
+//calculates the distance between 2 points
 inline double getDistance(Point p0, Point p1) {
   return getMagnitude(Point({p1.x - p0.x, p1.y - p0.y}));
 }

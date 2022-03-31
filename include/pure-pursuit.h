@@ -5,8 +5,20 @@
 #include <cmath>
 #include <algorithm>
 
+/*
+
+..Units..
+
+Lengths : Inches
+Angles : Radians
+
+*/
+
+//------BOOLEANS-----------
 inline bool enableOdom = true;
 inline bool enableFollowPath = true;
+
+//------VARS--------
 inline Path desiredPath;
 inline Path finalPath;
 inline Point lookaheadPoint;
@@ -16,7 +28,6 @@ inline Point closestPoint;
 inline double maxPathVelocity = 20; //inches per second
 inline double kMaxVel = 3; //[1,5] higher k --> faster around turns 
 inline double lookaheadDistance = 10;
-
 inline double maxAcceleration = 5; //incher per second^2
 
 
@@ -26,6 +37,8 @@ inline double closestPointIndex;
 
 
 int RunOdom();
+int FollowPath();
+void PurePursuitController();
 
 
 Path FillPointVals(Path cpath) {
@@ -87,5 +100,3 @@ Path FillPointVals(Path cpath) {
 
 
 
-int FollowPath();
-void PurePursuitController();

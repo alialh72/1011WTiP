@@ -1,5 +1,8 @@
 #include "pure-pursuit.h"
 
+//-------------------------------------------
+//Threads
+//-------------------------------------------
 
 int RunOdom() {
   while (enableOdom) {
@@ -9,81 +12,6 @@ int RunOdom() {
   }
 
   return 1;
-}
-
-
-Path FillPointVals(Path cpath) {
-  Path path = cpath; //make copy of variable
-
-  double runningDistance = 0;
-  for (int i = 0; i < path.points.size(); i++) {
-
-    //______Set the point distances from start of path______
-    double pointDistance = 0;
-
-    //if point is not the first
-    if (i != 0) {
-      //find the difference between point i and point i-1
-      double pointDiff = getDistance(path.getPoint(i-1), path.getPoint(i)); 
-
-      pointDistance = runningDistance + pointDiff;
-    } 
-
-    path.points.at(i).setDistance(pointDistance);
-
-    runningDistance += pointDistance;
-
-
-    //______Set curvature of points______
-    if (i != 0 && i != path.points.size()-1) {
-      double curvature = calcCurvature(path.getPoint(i), path.getPoint(i-1), path.getPoint(i+1)); 
-
-      path.points.at(i).setCurvature(curvature);
-    } else {
-      path.points.at(i).setCurvature(0);
-    }
-
-    //______Set max velocity of points______
-    //Set max velocity of point i to a minimum of (Max Path Velocity , k/curavture at point i)
-    path.points.at(i).setMaxVelocity(std::min(maxPathVelocity, kMaxVel/path.getPoint(i).curvature));
-  }
-
-  //----------Calculate Target Velocities-----------
-  //1. simulate a robot running the path with max acceleration, starting at the end
-  //2. vf = √(vi^2 + 2*a*d).
-  // --> new velocity at point i = min(old target velocity at point i, √(velocity at point (i + 1))2 + 2 * a * distance )
-
-  //Set velocity of last point to 0
-  path.points.at(path.points.size()-1).setTargetVelocity(0);
-
-  //loop through points back to front
-  for (int i = path.points.size()-2; i >= 0 ; i--) {
-    double pointDiff = path.getPoint(i+1).distanceFromStart - path.getPoint(i+1).distanceFromStart;
-
-    double newTargetVelocity = std::min(path.getPoint(i).maximumVelocity , sqrt(pow(path.getPoint(i+1).targetVelocity,2) + (2*maxAcceleration*pointDiff)) );
-
-    path.points.at(i).setTargetVelocity(newTargetVelocity);
-  }
-
-
-
-  return path;
-}
-
-
-void PreAutonPurePursuit() {
-  //Define path:
-  //  --> Define a set of waypoints for the robot to follow
-  desiredPath.points = { Point({1,3}), Point({3,4})};
-
-  //Smooth path
-  finalPath = GenerateSmoothPath(desiredPath);
-
-  //Fill point vals
-  //--> set the distance from start of each point and the curvature
-  finalPath = FillPointVals(finalPath);
-
-
 }
 
 int FollowPath() {
@@ -105,15 +33,63 @@ int FollowPath() {
       }
     }
 
+    closestPoint = finalPath.getPoint(shortestIndex);
+
+
     //______Find lookahead point______
 
-    for (int i = 0; i < finalPath.points.size(); i++) {
-      //Line Segment
+    double tVal = calcFractionalT(finalPath, Point({absPos[0], absPos[1]}), lookaheadDistance);
 
+    //round t val down to get the start tval
+    int startT = tVal; //get rids of decimals
+    //add 1 to find end point index
+    Vector lookaheadSegment(finalPath.getPoint(startT), finalPath.getPoint(startT + 1));
 
+    //similar triangles: 
+    //Get only the decimal(the fractional distance along the line)
+    double nonIndexedVal = fmod(tVal, 1); // y = x % 1  = 0.45 
 
+    //find new hypotenuse and x y difference
+    double similarHyp = nonIndexedVal * lookaheadSegment.magnitude;
+    double xDiff = similarHyp * cos(lookaheadSegment.refAngle);
+    double yDiff = similarHyp * sin(lookaheadSegment.refAngle);
+
+    //angle stays the same
+    //find new x & y distance
+    //depending on quadrant, either add/subtract the x and y to the initial point
+    switch (lookaheadSegment.quadrant) {
+      case 1:
+        lookaheadPoint.setCoordinates({ lookaheadSegment.startPoint.x + xDiff, lookaheadSegment.startPoint.y + yDiff });
+        break;
+      
+      case 2:
+        lookaheadPoint.setCoordinates({ lookaheadSegment.startPoint.x + xDiff, lookaheadSegment.startPoint.y - yDiff });
+        break;
+
+      case 3:
+        lookaheadPoint.setCoordinates({ lookaheadSegment.startPoint.x - xDiff, lookaheadSegment.startPoint.y - yDiff });
+        break;
+
+      case 4:
+        lookaheadPoint.setCoordinates({ lookaheadSegment.startPoint.x - xDiff, lookaheadSegment.startPoint.y + yDiff });
+        break;
+
+      case 5:       //straight up
+        lookaheadPoint.setCoordinates({ lookaheadSegment.startPoint.x, lookaheadSegment.startPoint.y + yDiff });
+        break;
+
+      case 6:      //straight right
+        lookaheadPoint.setCoordinates({ lookaheadSegment.startPoint.x + xDiff, lookaheadSegment.startPoint.y });
+        break;
+
+      case 7:      //straight down
+        lookaheadPoint.setCoordinates({ lookaheadSegment.startPoint.x, lookaheadSegment.startPoint.y - yDiff });
+        break;
+
+      case 8:       //straight left
+        lookaheadPoint.setCoordinates({ lookaheadSegment.startPoint.x - xDiff, lookaheadSegment.startPoint.y });
+        break;
     }
-
 
   }
   
@@ -121,9 +97,32 @@ int FollowPath() {
 }
 
 
+//---------------------------------
+//PreAuton
+//---------------------------------
+
+void PreAutonPurePursuit() {
+  //Define path:
+  //  --> Define a set of waypoints for the robot to follow
+  desiredPath.points = { Point({1,3}), Point({3,4})};
+
+  //Smooth path
+  finalPath = GenerateSmoothPath(desiredPath);
+
+  //Fill point vals
+  //--> set the distance from start of each point and the curvature
+  finalPath = FillPointVals(finalPath);
+
+
+}
+
+
+
+//--------------------------------
+//Controller
+//--------------------------------
+
 void PurePursuitController(){
-
-
 
   //Run odometry thread to get updated position of robot
   enableOdom = true;

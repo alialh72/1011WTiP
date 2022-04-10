@@ -46,11 +46,26 @@ inline double aCurvatureSlope;
 inline double bCurvatureSlope;
 inline double cCurvatureSlope;
 inline double relativeX;
+inline double side;
+inline double crossProduct;
+inline double signedCurvature;
+
+//-----CALC VELOCITY--------
+inline double targetVel;
+inline double targetRW, targetLW; //target right/left wheel velocities
+inline double rateLimiterOutput;
+inline double prevRateLimiterOutput;
+
 
 
 int RunOdom();
-int FollowPath();
+int UpdateVals();
 void PurePursuitController();
+void findClosestPoint();
+void findLookaheadPoint();
+void findCurvature();
+void calculateWheelVelocities();
+double rateLimiter(double val, double maxRate);
 
 
 Path FillPointVals(Path cpath) {
@@ -108,6 +123,8 @@ Path FillPointVals(Path cpath) {
 
   return path;
 }
+
+
 
 
 

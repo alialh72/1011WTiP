@@ -1,5 +1,12 @@
 #include "pure-pursuit.h"
 
+double rateLimiter(double val, double maxRate) {
+  double maxChange = 0.02 * maxRate;
+  rateLimiterOutput += std::clamp(val - prevRateLimiterOutput, -maxChange, maxChange);
+  return rateLimiterOutput;
+}
+
+
 //-------------------------------------------
 //Follow path functions
 //-------------------------------------------
@@ -97,8 +104,35 @@ void findCurvature() {
   //Bx = Rx + cos(robot angle)
   //By = Ry + sin(robot angle)
   
+  //sign = signum(cross product)
+  crossProduct =  sin(absOrientation) * (lookaheadPoint.x - absPos[0]) - cos(absOrientation) * (lookaheadPoint.y - absPos[1]);
 
+  //signum ternary operator
+  side = (crossProduct > 0) ? 1 : ((crossProduct < 0) ? -1 : 0);
 
+  signedCurvature = ((2*relativeX)/pow(lookaheadDistance, 2))*side;
+
+}
+
+void calculateWheelVelocities() {
+  //calculate wheel velocities
+  /*
+  V = target robot velocity
+  L = target left wheel’s speed
+  R = target right wheel’s speed
+  C = curvature of arc
+  W = angular velocity of robot
+  T = track width
+
+  V = (L + R)/2
+  W = (L − R)/T
+  V = W/C
+  */
+
+  targetVel = rateLimiter(closestPoint.targetVelocity, maxAcceleration);
+
+  targetLW = targetVel * (2 + (signedCurvature * trackWidth) )/2;
+  targetRW = targetVel * (2 - (signedCurvature * trackWidth) )/2;
 
 
 }
@@ -119,11 +153,13 @@ int RunOdom() {
   return 1;
 }
 
-int FollowPath() {
+int UpdateVals() {
 
   while (enableFollowPath) {
     findClosestPoint();
     findLookaheadPoint();
+    findCurvature();
+
 
     
     
@@ -164,5 +200,6 @@ void PurePursuitController(){
   //Run odometry thread to get updated position of robot
   enableOdom = true;
   vex::task runOdom(RunOdom);
+  vex::task updateVals(UpdateVals);
 
 }

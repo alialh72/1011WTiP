@@ -23,17 +23,29 @@ inline Path desiredPath;
 inline Path finalPath;
 inline Point lookaheadPoint;
 inline Point closestPoint;
+inline double curvature;
+inline double targetVelRight;
+inline double targetVelLeft;
+inline double targetVelRobot;
+inline double angularVel;
+
 
 //------PARAMETERERS-------
 inline double maxPathVelocity = 20; //inches per second
 inline double kMaxVel = 3; //[1,5] higher k --> faster around turns 
 inline double lookaheadDistance = 10;
 inline double maxAcceleration = 5; //incher per second^2
+inline double trackWidth;
 
 
 //------PURE PURSUIT LOOP VARIABLES-------
 inline double prevClosestPointIndex = 0;
 inline double closestPointIndex;
+
+inline double aCurvatureSlope;
+inline double bCurvatureSlope;
+inline double cCurvatureSlope;
+inline double relativeX;
 
 
 int RunOdom();

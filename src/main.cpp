@@ -11,22 +11,23 @@
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
 // Controller1          controller                    
-// LeftDrive            motor_group   8, 12           
-// RightDrive           motor_group   2, 14           
-// LeftDriveUp          motor         4               
-// RightDriveUp         motor         1               
+// LeftDrive            motor_group   3, 2            
+// RightDrive           motor_group   7, 8            
+// LeftDriveUp          motor         1               
+// RightDriveUp         motor         6               
 // TWLeft               encoder       C, D            
 // TWRight              encoder       E, F            
 // TWHorizontal         encoder       G, H            
-// Expander             triport       11              
-// FBLift               motor         21              
+// Expander             triport       12              
+// FBLift               motor         11              
 // BackClamp            digital_out   E               
 // BackTilter1          digital_out   F               
 // BackTilter2          digital_out   G               
 // FBLiftRotation       rotation      10              
 // InertialSensor       inertial      9               
-// FrontDistance        distance      6               
+// FrontDistance        distance      14              
 // FrontClamp           digital_out   A               
+// Intake               motor         17              
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"

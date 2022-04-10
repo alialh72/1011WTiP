@@ -4,6 +4,7 @@
 #include "path-smoother.h"
 
 Segment CalcCoefficients(double alpha, double tension, Point p0, Point p1, Point p2, Point p3){
+  
     
   //Catmull-Rom Spline calculations
   double t01 = pow(getDistance(p0, p1), alpha);

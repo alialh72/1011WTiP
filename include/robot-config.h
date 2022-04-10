@@ -20,6 +20,7 @@ extern rotation FBLiftRotation;
 extern inertial InertialSensor;
 extern distance FrontDistance;
 extern digital_out FrontClamp;
+extern motor Intake;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.

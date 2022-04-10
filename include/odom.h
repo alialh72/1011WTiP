@@ -30,7 +30,8 @@ inline double avgOrientation = 0;
 inline double lclOffsetPolar[2] = {0,0};
 inline double gblOffsetPolar[2] = {0,0};
 inline double gblOffset[2] = {0,0};
-inline double absPos[2]= {0,0};
+
+inline double absPos[2]= {0,0}; //*
 
 //--------__Parameters__--------//
 

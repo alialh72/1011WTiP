@@ -34,7 +34,7 @@ void findClosestPoint() {
 void findLookaheadPoint() {
   //______Find lookahead point______
 
-  double tVal = calcFractionalT(finalPath, Point({absPos[0], absPos[1]}), lookaheadDistance);
+  double tVal = calcFractionalT(finalPath, Point({ absPos[0], absPos[1] }), lookaheadDistance);
 
   //round t val down to get the start tval
   int startT = tVal; //get rids of decimals (converting double to int drops decimals)
@@ -57,7 +57,7 @@ void findLookaheadPoint() {
     case 1:
       lookaheadPoint.setCoordinates({ lookaheadSegment.startPoint.x + xDiff, lookaheadSegment.startPoint.y + yDiff });
       break;
-    
+
     case 2:
       lookaheadPoint.setCoordinates({ lookaheadSegment.startPoint.x + xDiff, lookaheadSegment.startPoint.y - yDiff });
       break;
@@ -86,6 +86,39 @@ void findLookaheadPoint() {
       lookaheadPoint.setCoordinates({ lookaheadSegment.startPoint.x - xDiff, lookaheadSegment.startPoint.y });
       break;
   }
+
+  //____________set vals of lookahead____________
+
+  //______Distance from start______
+  double distanceDiff = getDistance(lookaheadPoint, finalPath.getPoint(startT));
+  double newDistance = finalPath.getPoint(startT).distanceFromStart + distanceDiff;
+  lookaheadPoint.setDistance(newDistance);
+
+  //______Curvature______
+  double curvature = 0;
+  if (startT + 2 < finalPath.points.size() - 1) {
+    curvature = calcCurvature(lookaheadPoint, finalPath.getPoint(startT - 1), finalPath.getPoint(startT + 2));
+  }
+    
+  lookaheadPoint.setCurvature(curvature);
+
+  //______Set max velocity of lookahead____
+  //Set max velocity of point i to a minimum of (Max Path Velocity , k/curavture at point i)
+  lookaheadPoint.setMaxVelocity(std::min(maxPathVelocity, kMaxVel / lookaheadPoint.curvature));
+
+  //______Set target velocity of lookahead____
+  // --> new velocity at point i = min(old target velocity at point i, √(velocity at point (i + 1))2 + 2 * a * distance )
+  if (startT + 1 < finalPath.points.size() - 1) {
+    double pointDiff = finalPath.getPoint(startT + 1).distanceFromStart - lookaheadPoint.distanceFromStart;
+
+    double newTargetVelocity = std::min(lookaheadPoint.maximumVelocity, sqrt(pow(finalPath.getPoint(startT + 1).targetVelocity, 2) + (2 * maxAcceleration * pointDiff)));
+
+    lookaheadPoint.setTargetVelocity(newTargetVelocity);
+  }
+  else {
+    lookaheadPoint.setTargetVelocity(0);
+  }
+    
 }
 
 void findCurvature() {

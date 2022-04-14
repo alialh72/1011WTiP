@@ -21,7 +21,7 @@ void findClosestPoint() {
   for (int i = prevClosestPointIndex + 1; i < finalPath.points.size(); i++) {
     double robotDistance = getDistance(Point({absPos[0], absPos[1]}), finalPath.getPoint(i));
 
-    if (robotDistance > shortestDistance) {
+    if (robotDistance < shortestDistance) {
       shortestDistance = robotDistance;
       shortestIndex = i;
     }

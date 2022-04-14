@@ -2,7 +2,7 @@
 
 double rateLimiter(double val, double maxRate) {
   double maxChange = 0.02 * maxRate;
-  rateLimiterOutput += std::clamp(val - prevRateLimiterOutput, -maxChange, maxChange);
+  rateLimiterOutput += clamp(val - prevRateLimiterOutput, -maxChange, maxChange);
   return rateLimiterOutput;
 }
 
@@ -37,7 +37,7 @@ void findLookaheadPoint() {
   double tVal = calcFractionalT(finalPath, Point({absPos[0], absPos[1]}), lookaheadDistance);
 
   //round t val down to get the start tval
-  int startT = tVal; //get rids of decimals
+  int startT = tVal; //get rids of decimals (converting double to int drops decimals)
   //add 1 to find end point index
   Vector lookaheadSegment(finalPath.getPoint(startT), finalPath.getPoint(startT + 1));
 
@@ -129,7 +129,8 @@ void calculateWheelVelocities() {
   V = W/C
   */
 
-  targetVel = rateLimiter(closestPoint.targetVelocity, maxAcceleration);
+  //targetVel = rateLimiter(closestPoint.targetVelocity, maxAcceleration);
+  targetVel = closestPoint.targetVelocity;
 
   targetLW = targetVel * (2 + (signedCurvature * trackWidth) )/2;
   targetRW = targetVel * (2 - (signedCurvature * trackWidth) )/2;
@@ -163,7 +164,7 @@ int UpdateVals() {
 
     
     
-
+    vex::task::sleep(20);
   }
   
   return 1;

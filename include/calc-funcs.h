@@ -80,4 +80,10 @@ inline double calcFractionalT(Path path, Point robotPos, double lookahead) {
   return largestTVal;
 }
 
+//clamp function
+inline double clamp(double d, double min, double max) {
+  const double t = d < min ? min : d;
+  return t > max ? max : t;
+}
+
 #endif

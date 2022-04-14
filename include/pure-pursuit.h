@@ -83,11 +83,10 @@ Path FillPointVals(Path cpath) {
       double pointDiff = getDistance(path.getPoint(i-1), path.getPoint(i)); 
 
       pointDistance = runningDistance + pointDiff;
+      runningDistance += pointDiff;
     } 
 
     path.points.at(i).setDistance(pointDistance);
-
-    runningDistance += pointDistance;
 
 
     //______Set curvature of points______
@@ -114,7 +113,7 @@ Path FillPointVals(Path cpath) {
 
   //loop through points back to front
   for (int i = path.points.size()-2; i >= 0 ; i--) {
-    double pointDiff = path.getPoint(i+1).distanceFromStart - path.getPoint(i+1).distanceFromStart;
+    double pointDiff = path.getPoint(i+1).distanceFromStart - path.getPoint(i).distanceFromStart;
 
     double newTargetVelocity = std::min(path.getPoint(i).maximumVelocity , sqrt(pow(path.getPoint(i+1).targetVelocity,2) + (2*maxAcceleration*pointDiff)) );
 

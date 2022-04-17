@@ -8,7 +8,8 @@
 //-------------------DRIVE BASE---------------------------------
 
 inline double kDrive[3] = {0.08, 0.0, 0.001}; //Starting Vals
-inline PID driveVals(kDrive);
+inline PID driveLeftVals(kDrive);
+inline PID driveRightVals(kDrive);
 
 //Vars modified for use
 inline bool enableDrivePID = true;

@@ -32,6 +32,7 @@ void findClosestPoint() {
 
 
 void findLookaheadPoint() {
+  //TODO: add check if lookahead point is last point (case if startT + 1 is out of index range)
   //______Find lookahead point______
 
   double tVal = calcFractionalT(finalPath, Point({ absPos[0], absPos[1] }), lookaheadDistance);
@@ -162,13 +163,14 @@ void calculateWheelVelocities() {
   V = W/C
   */
 
-  //targetVel = rateLimiter(closestPoint.targetVelocity, maxAcceleration);
-  targetVel = closestPoint.targetVelocity;
+  targetVel = rateLimiter(closestPoint.targetVelocity, maxAcceleration);
+  //targetVel = closestPoint.targetVelocity;
 
   targetLW = targetVel * (2 + (signedCurvature * trackWidth) )/2;
   targetRW = targetVel * (2 - (signedCurvature * trackWidth) )/2;
 
-
+  driveLeftVals.desiredValue = targetLW;
+  driveRightVals.desiredValue = targetRW;
 }
 
 

@@ -1,5 +1,7 @@
 #include "odom.h"
 #include "path-smoother.h"
+#include "path-generator.h"
+#include "pid-controller.h"
 #include "calc-funcs.h"
 #include <vex.h>
 #include <cmath>

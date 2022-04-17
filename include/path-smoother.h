@@ -1,3 +1,6 @@
+#ifndef PATHSMOOTHER_H
+#define PATHSMOOTHER_H
+
 #include <vector>
 #include <vex.h>
 #include <cmath>
@@ -8,3 +11,5 @@ inline Segment CalcCoefficients(double alpha, double tension, std::vector<double
   std::vector<double> p1, std::vector<double> p2, std::vector<double> p3);
 
 inline Path GenerateSmoothPath(Path path);
+
+#endif

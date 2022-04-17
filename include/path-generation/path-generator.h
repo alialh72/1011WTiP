@@ -1,3 +1,6 @@
+#ifndef PATHGENERATOR_H
+#define PATHGENERATOR_H
+
 #include <vector>
 #include <vex.h>
 #include <cmath>
@@ -5,7 +8,7 @@
 #include "structs/path-struct.h"
 
 //checks if a line segment intersects with circle returns t value [0,1] 
-double checkIntersection(Point startSegment, Point endSegment, Point circleCentre, double radius) {
+inline double checkIntersection(Point startSegment, Point endSegment, Point circleCentre, double radius) {
   double t1, t2;
   Vector d(startSegment, endSegment);
   Vector f(circleCentre, startSegment);
@@ -37,6 +40,8 @@ double checkIntersection(Point startSegment, Point endSegment, Point circleCentr
 
 }
 
-Path getIntersectionPoints(double m, double c, Point circleCentre, double radius);
-Path pointsAroundArc(Point start, Point end, Point circleCentre, double radius, double cutoffPercentage);
-Path createPath(Point startingPoint, Point endingPoint, double approachHeading, double avoidanceCircleRadius);
+inline Path getIntersectionPoints(double m, double c, Point circleCentre, double radius);
+inline Path pointsAroundArc(Point start, Point end, Point circleCentre, double radius, double cutoffPercentage);
+inline Path createPath(Point startingPoint, Point endingPoint, double approachHeading, double avoidanceCircleRadius);
+
+#endif

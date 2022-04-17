@@ -1,10 +1,10 @@
 #include "vex.h"
 #include <cmath>
-#include "pid-controller.h"
+#include "pid/pid-controller.h"
 
 //========================ARM PID========================
 
-int drivePID(){
+int DrivePID(){
 
   while(enableDrivePID) {
 

@@ -1,4 +1,4 @@
-#include "pure-pursuit.h"
+#include "pure-pursuit/pure-pursuit.h"
 
 double rateLimiter(double val, double maxRate) {
   double maxChange = 0.02 * maxRate;
@@ -235,7 +235,8 @@ void PurePursuitController(){
 
   //Run odometry thread to get updated position of robot
   enableOdom = true;
+  enableDrivePID = true;
   vex::task runOdom(RunOdom);
   vex::task updateVals(UpdateVals);
-
+  vex::task drivePID(DrivePID);
 }

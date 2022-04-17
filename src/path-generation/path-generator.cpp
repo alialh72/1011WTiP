@@ -1,5 +1,6 @@
-#include "path-generator.h"
+#include "path-generation/path-generator.h"
 
+//Generate a path that can account for heading
 
 Path getIntersectionPoints(double m, double c, Point circleCentre, double radius) {
   /*

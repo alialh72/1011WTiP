@@ -1,7 +1,7 @@
-#include "odom.h"
-#include "path-smoother.h"
-#include "path-generator.h"
-#include "pid-controller.h"
+#include "odom/odom.h"
+#include "path-generation/path-smoother.h"
+#include "path-generation/path-generator.h"
+#include "pid/pid-controller.h"
 #include "calc-funcs.h"
 #include <vex.h>
 #include <cmath>

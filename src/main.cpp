@@ -32,7 +32,7 @@
 
 #include "vex.h"
 #include <cmath>
-#include "odom.h"
+#include "odom/odom.h"
 
 using namespace vex;
 

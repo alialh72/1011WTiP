@@ -14,6 +14,6 @@ inline PID driveRightVals(kDrive);
 //Vars modified for use
 inline bool enableDrivePID = true;
 
-int drivePID();
+int DrivePID();
 
 #endif

@@ -1,7 +1,7 @@
 //Credits to Ali Al Hamadani
 //Algo taken from github: https://github.com/alialh72/SmoothPathGenerator/
 
-#include "path-smoother.h"
+#include "path-generation/path-smoother.h"
 
 Segment CalcCoefficients(double alpha, double tension, Point p0, Point p1, Point p2, Point p3){
   

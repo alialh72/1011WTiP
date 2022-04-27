@@ -3,17 +3,22 @@
 
 #include "vex.h"
 #include <cmath>
+#include "calc-funcs.h"
 #include "pid.h"
+#include "rate-limiter.h"
 
 //-------------------DRIVE BASE---------------------------------
+inline PID driveLeftVals;
+inline PID driveRightVals;
 
-inline double kDrive[3] = {0.08, 0.0, 0.001}; //Starting Vals
-inline PID driveLeftVals(kDrive);
-inline PID driveRightVals(kDrive);
+limiter lim;
 
 //Vars modified for use
 inline bool enableDrivePID = true;
 
 int DrivePID();
+
+
+
 
 #endif

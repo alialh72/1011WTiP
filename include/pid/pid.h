@@ -12,19 +12,13 @@ class PID {
     double kD;
 
     //Calculations
-    int error; //SensorValue - DesiredValue : Position
-    int prevError = 0; //Position 20ms ago
-    int derivative; //error - prevError : Speed
-    int totalError = 0;
+    double error; //SensorValue - DesiredValue : Position
+    double prevError = 0; //Position 20ms ago
+    double derivative; //error - prevError : Speed
+    double totalError = 0;
 
     //Auto Control
-    int desiredValue = 0;
-
-    PID(double k[3]) {
-      kP = k[0];
-      kI = k[1];
-      kD = k[2];
-    }
+    double desiredValue = 0;
 
     void changePID(double k[3]) {
       kP = k[0];

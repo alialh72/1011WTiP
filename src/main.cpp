@@ -11,28 +11,28 @@
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
 // Controller1          controller                    
-// LeftDrive            motor_group   3, 2            
-// RightDrive           motor_group   7, 8            
-// LeftDriveUp          motor         1               
-// RightDriveUp         motor         6               
-// TWLeft               encoder       C, D            
-// TWRight              encoder       E, F            
-// TWHorizontal         encoder       G, H            
-// Expander             triport       12              
-// FBLift               motor         11              
-// BackClamp            digital_out   E               
-// BackTilter1          digital_out   F               
-// BackTilter2          digital_out   G               
+// LeftDrive            motor_group   3, 1            
+// RightDrive           motor_group   16, 18          
+// LeftDriveUp          motor         2               
+// RightDriveUp         motor         17              
+// TWParallel           encoder       C, D            
+// TWHorizontal         encoder       A, B            
+// Expander             triport       7               
+// FBLift               motor         20              
+// BackClamp            digital_out   H               
+// BackTilter           digital_out   B               
 // FBLiftRotation       rotation      10              
-// InertialSensor       inertial      9               
+// InertialRight        inertial      19              
 // FrontDistance        distance      14              
 // FrontClamp           digital_out   A               
-// Intake               motor         17              
+// Intake               motor         11              
+// InertialLeft         inertial      6               
+// Controller2          controller                    
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
+#include "control-funcs.h"
 #include <cmath>
-#include "odom/odom.h"
 
 using namespace vex;
 
@@ -48,6 +48,9 @@ competition Competition;
 void pre_auton(void) {
   // Initializing Robot Configuration. DO NOT REMOVE
   vexcodeInit();
+
+  PreAutonPurePursuit();
+
 }
 
 
@@ -55,35 +58,23 @@ void pre_auton(void) {
 
 //easy swap between autos
 void autonomous(void) {
-
+  skillsAuto();
 }
 
 /*---------------------------------------------------------------------------*/
 /*                              User Control Task                            */
 /*---------------------------------------------------------------------------*/
 
-void FrontClampOpen() { FrontClamp.set(true); } //open clamp
-void FrontClampClose() { FrontClamp.set(false); } //close clamp
 
-void BackOpen() { 
-  //set tilters to extended state
-  BackTilter1.set(false);
-  BackTilter2.set(false);
 
-  //set clamp to closed state
-  BackClamp.set(true);
-} 
 
-void BackClose() {
-  //set tilters to closed state
-  BackTilter1.set(true);
-  BackTilter2.set(true);
 
-  //set clamp to extended state
-  BackClamp.set(false);
-}
 
 void usercontrol(void) {
+
+  vex::controller Controller1 (vex::controllerType::primary);
+  vex::controller Controller2 (vex::controllerType::partner);
+
 
   //---------------Settings---------------
   double turnImportance = 0.1;
@@ -93,14 +84,17 @@ void usercontrol(void) {
   RightDrive.setStopping(hold);
   RightDriveUp.setStopping(hold);
 
-  InertialSensor.calibrate();
-  while(InertialSensor.isCalibrating()){
-    wait(20, msec);
-  }
-  InertialSensor.resetRotation();
+  // InertialSensor.calibrate();
+  // while(InertialSensor.isCalibrating()){
+  //   wait(20, msec);
+  // }
+  // InertialSensor.resetRotation();
 
+  //ringintake thread
+  vex::task runIntake(RingIntake);
 
   while (1) {
+    odom();
     //---------------Drivetrain---------------
     double motorForwardVal = Controller1.Axis3.position(percent);
     double motorTurnVal = Controller1.Axis1.position(percent);
@@ -111,42 +105,61 @@ void usercontrol(void) {
     
     LeftDrive.spin(forward, motorForwardVolts + motorTurnVolts, voltageUnits::volt);
     LeftDriveUp.spin(forward, motorForwardVolts + motorTurnVolts, voltageUnits::volt);
-    RightDrive.spin(forward, motorForwardVolts - motorTurnVolts, voltageUnits::volt);
-    RightDriveUp.spin(forward, motorForwardVolts - motorTurnVolts, voltageUnits::volt);
+    RightDrive.spin(forward, (motorForwardVolts) - motorTurnVolts, voltageUnits::volt);
+    RightDriveUp.spin(forward, (motorForwardVolts) - motorTurnVolts, voltageUnits::volt);
 
     //Four Bar Lift
     if (Controller1.ButtonL1.pressing()) {
-      FBLift.spin(forward, 12, voltageUnits::volt);
+      FBLift.spin(forward, 10, voltageUnits::volt);
     } else if (Controller1.ButtonL2.pressing()) {
-      FBLift.spin(reverse, 12, voltageUnits::volt);
+      FBLift.spin(reverse, 10, voltageUnits::volt);
     } else {
       FBLift.stop(brakeType::hold);
     }
-
     //Front Clamp
     Controller1.ButtonR1.pressed(FrontClampOpen);
     Controller1.ButtonR2.pressed(FrontClampClose);
 
-    //Back Clamp and Tilters
-    Controller1.ButtonUp.pressed(BackOpen);
-    Controller1.ButtonDown.pressed(BackOpen);
+    //Back Clamp
+    Controller1.ButtonUp.pressed(BackClampOpen);
+    Controller1.ButtonDown.pressed(BackClampClose);
+
+    
+    //_______CONTROLER 2_________j
+
+    //Ring Intake
+    Controller2.ButtonA.pressed(swapRingOn);
+    Controller2.ButtonB.pressed(swapRingDirection);
+
+    //Back Tilters
+    Controller2.ButtonLeft.pressed(BackTilterRetract);
+    Controller2.ButtonRight.pressed(BackTilterExtend);
 
 
-    fullOdomCycle();
     Brain.Screen.clearScreen();
     Brain.Screen.setCursor(1,1);
-    Brain.Screen.print(gblOffset[0]);
+    Brain.Screen.print("motorPosL&R: %f, %f", LeftDrive.position(deg)*M_PI/180, RightDrive.position(deg)*M_PI/180);
     Brain.Screen.newLine();
-    Brain.Screen.print(gblOffset[1]);
+    Brain.Screen.print("trackL&RPos: %f, %f", motorLeftPos, motorRightPos);
     Brain.Screen.newLine();
-    Brain.Screen.print("abs orientation: %f", deltaOrientation * 180 /M_1_PI);
+    Brain.Screen.print("trackR: %f   L:, %f", totalDeltaRT, totalDeltaLT);
     Brain.Screen.newLine();
-    Brain.Screen.print("BackWheel: %f", deltaBT);
+    Brain.Screen.print("final posx: %f, %f", finalPosition.x, finalPosition.y);
     Brain.Screen.newLine();
-    Brain.Screen.print("RightWheel: %f", totalDeltaRT);
+    Brain.Screen.print("absOrientation: %f", absOrientation);
     Brain.Screen.newLine();
-    Brain.Screen.print("LeftWheel: %f", totalDeltaLT);
+    Brain.Screen.print("inertial: %f", getInertialReading());
+    Brain.Screen.newLine();
+    Brain.Screen.print("deltaOrientation: %f", deltaOrientation);
 
+
+    double currentVelocityLeft = (RightDrive.velocity(dps) * M_PI/180 * 4/2 * 7/5);  //wheel diameter/2
+    double currentVelocityRight = (LeftDrive.velocity(dps) * M_PI/180 * 4/2 * 7/5);  //wheel diameter/2
+
+    Controller1.Screen.clearScreen();
+    Controller1.Screen.setCursor(1,1);
+    Controller1.Screen.print("mVLR: %f, %f", currentVelocityLeft, currentVelocityRight);
+    Controller1.Screen.newLine();
 
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources.

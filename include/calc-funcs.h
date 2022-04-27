@@ -2,6 +2,7 @@
 #define CALC-FUNCS_H
 
 #include "structs/path-struct.h"
+#include "vex.h"
 #include <vector>
 #include <cmath>
 #include <deque>
@@ -43,11 +44,11 @@ inline double calcIntersection(Point startSegment, Point endSegment, Point robot
     t1 = (-b - discriminant) / (2 * a);
     t2 = (-b + discriminant) / (2 * a);
 
-    if (t1 >= 0 && t1 <= 1) {
+    if (t1 >= 0 && t1 <= 1 && t1 >= t2) {
         //return t1 intersection
         return t1;
     }
-    if (t2 >= 0 && t2 <= 1) {
+    if (t2 >= 0 && t2 <= 1 && t2 > t1) {
         //return t2
         return t2;
     }
@@ -57,9 +58,9 @@ inline double calcIntersection(Point startSegment, Point endSegment, Point robot
 }
 
 //Calculate tVal + index
-inline double calcFractionalT(Path path, Point robotPos, double lookahead) {
+inline double calcFractionalT(Path path, Point robotPos, double lookahead, double startingLargest) {
 
-  double largestTVal = 0;
+  double largestTVal = startingLargest;
   //loop through path up until last point
   for (int i = 0; i < path.points.size()-1; i++) {
     //start and end points of vector
@@ -86,4 +87,8 @@ inline double clamp(double d, double min, double max) {
   return t > max ? max : t;
 }
 
+
+inline double getInertialReading() {
+  return ( (InertialRight.rotation() + InertialLeft.rotation())/2 );
+}
 #endif

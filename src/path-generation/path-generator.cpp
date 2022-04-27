@@ -226,7 +226,6 @@ Path createPath(Point startingPoint, Point endingPoint, double approachHeading, 
     }
 
     //add a point further inside the circle so theres a less sharp curve
-
     path.addPoint(furtherTargetPoint);
     path.addPoint(endingPoint);
 

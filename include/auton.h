@@ -3,14 +3,16 @@
 
 #include "vex.h"
 #include <cmath>
-#include "pid/pid-controller.h"
 #include "pure-pursuit/pure-pursuit.h"
+#include "control-funcs.h"
 
 void testAuto();
 void skillsAuto();
 void tunePID();
+void rushAutoRight();
+void testPID();
 
-
+inline bool done;
 
 
 #endif

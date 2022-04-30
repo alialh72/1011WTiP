@@ -1,3 +1,5 @@
+#ifndef RATELIMITER_H
+#define RATELIMITER_H
 #include "calc-funcs.h"
 
 class limiter{
@@ -16,3 +18,5 @@ class limiter{
       prevRateLimiterOutput = 0;
     }
 };
+
+#endif

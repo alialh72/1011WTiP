@@ -6,6 +6,8 @@ void initPure() {
   shortestDistance = getDistance(finalPosition, finalPath.getPoint(finalPath.points.size()-1));
   closestPointIndex = finalPath.points.size()-1;
   l.reset();
+  targetLW = 0;
+  targetRW = 0;
 }
 
 
@@ -201,6 +203,7 @@ void addPath(Path desPath) {
   paths.push_back(fPath);
 }
 
+
 void PreAutonPurePursuit() {
   //Define all path motions here to be pregenerated
 
@@ -208,7 +211,7 @@ void PreAutonPurePursuit() {
   //Define path:
   //  --> Define a set of waypoints for the robot to follow
   Path desiredPath1;
-  desiredPath1.points = {Point({0,0}) ,Point({3,23}), Point({25,45}), Point({30,-20})};  //replace with actual path values
+  desiredPath1.points = {Point({0,0}) ,Point({0,41})};  //replace with actual path values
   addPath(desiredPath1);
 
   //===Action===:
@@ -219,11 +222,15 @@ void PreAutonPurePursuit() {
   //Define path:
   //  --> Define a set of waypoints for the robot to follow
   Path desiredPath2;
-  desiredPath2.points = { Point({1,3}), Point({3,4})};  //replace with actual path values
+  desiredPath2.points = { Point({0,41}), Point({0,0})};  //replace with actual path values
   addPath(desiredPath2);
 
   //===Action===:
   // Move arm down 500
+
+  Path desiredPath3 = CreatePath(Point({0,0}), Point({0,35}), 200, 1);
+  addPath(desiredPath3);
+  //addPath(desiredPath3);
 
 }
 
@@ -277,10 +284,65 @@ void PurePursuitController(){
 }
 
 
+//DRIVE TO
+void driveTo(Path ogPath, int start, int end, double error, double timeLimit, bool goBackward, double speedMultiplier){
+  //goBackward: 
+  //__true = backward
+  //__false = forward
+
+
+  Brain.resetTimer();
+  double currentTime = Brain.timer(msec);
+
+  //get points from path
+  Path subPath;
+
+  finalPath = ogPath;
+  initPure();
+  while (getDistance(finalPosition, ogPath.getPoint(end)) >= error || currentTime >= timeLimit){
+    currentTime = Brain.timer(msec);
+    findClosestPoint();
+    findLookaheadPoint();
+    findCurvature();
+    calculateWheelVelocities();
+
+
+    double targetDegL = ((targetLW/2)*180/M_PI)/(7/5); //inches per second
+    double targetDegR = ((targetRW/2)*180/M_PI)/(7/5); //inches per second
+
+    if (goBackward) {
+      targetDegL *= -1;
+      targetDegR *= -1;
+    }
+
+    targetDegL *= speedMultiplier;
+    targetDegR *= speedMultiplier;
+
+    LeftDrive.spin(forward, targetDegL, velocityUnits::dps);
+    LeftDriveUp.spin(forward, targetDegL, velocityUnits::dps);
+
+    RightDrive.spin(forward, targetDegR, velocityUnits::dps);
+    RightDriveUp.spin(forward, targetDegR, velocityUnits::dps);
+
+    vex::task::sleep(20);
+  }
+
+
+  // while (LeftDrive.velocity(dps) != 0 && RightDrive.velocity(dps) != 0) {
+  //   LeftDrive.stop(brakeType::hold);
+  //   LeftDriveUp.stop(brakeType::hold);
+  //   RightDrive.stop(brakeType::hold);
+  //   RightDriveUp.stop(brakeType::hold);
+
+  //   vex::task::sleep(20);
+  // }
+
+
+}
+
 
 //DEFINE ALL PATHS
 //These are the functions you call to switch between pregenerated paths
-void setPathMotion(int i){
-  finalPath = paths.at(i);
-  initPure();
+Path getPathMotion(int i){
+  return paths.at(i);
 }

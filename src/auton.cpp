@@ -8,39 +8,6 @@
 /*                              Autonomous Task                              */
 /*---------------------------------------------------------------------------*/
 
-void testAuto()  { //1
-  //===Motion 1====
-  //----Drive------
-  vex::task driverPid(DriverPID);
-  resetDriveSensors = true;
-  enableInertial = false;
-  driverVals.desiredValue = 2670;  
-  turnVals.desiredValue = 0;
-
-  FrontClamp.set(true);
-
-  vex::task::sleep(1250);
-
-
-  //===Motion 2====
-  //----Drive------
-  resetDriveSensors = true;
-  driverVals.desiredValue = 0;  
-  turnVals.desiredValue = 0;
-
-  FrontClamp.set(false);
-
-  vex::task::sleep(150);
-
- //===Motion 3====
-  //----Drive------
-  resetDriveSensors = true;
-  driverVals.desiredValue = -2000;  
-  turnVals.desiredValue = 0;
-  
-  vex::task::sleep(350);
-
-}
 
 int brainPrint() {
   while(1) {
@@ -50,7 +17,7 @@ int brainPrint() {
     Brain.Screen.newLine();
     Brain.Screen.print("currentcoords: %f, %f", finalPosition.x, finalPosition.y);
     Brain.Screen.newLine();
-    Brain.Screen.print("point vel: %f", closestPoint.targetVelocity);
+    Brain.Screen.print("current vel: %f, %f", LeftDrive.velocity(dps), RightDrive.velocity(dps));
     Brain.Screen.newLine();
     Brain.Screen.print("target vel: %f", targetVel);
     Brain.Screen.newLine();
@@ -60,31 +27,40 @@ int brainPrint() {
     Brain.Screen.newLine();
     Brain.Screen.print("getinertial: %f", getInertialReading());
     Brain.Screen.newLine();
-    Brain.Screen.print("closestpoint: %f, %f", closestPoint.x, closestPoint.y);
+    Brain.Screen.print("start: %f, %f", closestPoint.x, closestPoint.y);
     Brain.Screen.newLine();
     Brain.Screen.print("lookahead: %f, %f", lookaheadPoint.x, lookaheadPoint.y);
+    Brain.Screen.newLine();
+    Brain.Screen.print("finalPoint: %f, %f", finalPath.getPoint(4).x, finalPath.getPoint(4).y);
+    Brain.Screen.newLine();
+    Brain.Screen.print("error diff: %f", getDistance(finalPosition, finalPath.getPoint(4)));
+    Brain.Screen.newLine();
+    Brain.Screen.print(done);
     wait(20, msec);
   }
   return 1;
 }
 
 void skillsAuto()  { //2
-
-
-    //Run all threads
-  enableFollowPath = true;
+  //Run all threads
   enableOdom = true;
-  enableDrivePID = true;
 
   initOdom();
-  setPathMotion(0);
- // setPathMotion(0);
   vex::task runOdom(RunOdom);
-  vex::task followPath(FollowPath);
+
+  done = false;
+  Path desPath;
+  desPath = getPathMotion(0);
   vex::task brainprint(brainPrint);
-  vex::task drivePID(DrivePID);
+  maxPathVelocity = 100;
+  maxAcceleration = 50;
 
+  driveTo(desPath, 0, 4, 4, 1000, false, 1);
 
+  desPath = getPathMotion(1);
+
+  done = true;
+  //driveTo(desPath, 0, 4, 4, 1000, true, 1);
 
 
 }
@@ -118,4 +94,73 @@ void tunePID()  { //2
     vex::task::sleep(20);
   }
 
+}
+
+void rushAutoRight() {
+  
+  //INIT PID
+  enableDrivePID = true;
+  vex::task driveOnlyPID(driverOnlyPID);
+
+
+  //START:
+
+  resetDriveSensors = true;
+  FrontClampOpen();
+  driveVals.desiredValue = 1100;
+  turnVals.desiredValue = 0;
+
+  vex::task::sleep(1050);
+
+  resetDriveSensors = true;
+  FrontClampClose();
+  driveVals.desiredValue = -1100;
+  turnVals.desiredValue = 0;
+
+  vex::task::sleep(1250);
+
+  resetDriveSensors = true;
+  driveVals.desiredValue = 400;
+  turnVals.desiredValue = 0;
+
+  vex::task::sleep(1050);
+
+  resetDriveSensors = true;
+  BackTilterExtend();
+  BackClampOpen();
+  driveVals.desiredValue = 500;
+  turnVals.desiredValue = -90;
+
+  vex::task::sleep(1050);
+
+  resetDriveSensors = true;
+  driveVals.desiredValue = -600;
+  turnVals.desiredValue = 0;
+
+  vex::task::sleep(1050);
+
+  resetDriveSensors = true;
+  BackClampClose();
+  BackTilterRetract();
+  driveVals.desiredValue = 0;
+  turnVals.desiredValue = 0;
+
+  vex::task::sleep(1050);
+
+}
+
+void testPID(){
+  //INIT PID
+  enableDrivePID = true;
+  vex::task driveOnlyPID(driverOnlyPID);
+
+
+  //START:
+
+  resetDriveSensors = true;
+  FrontClampOpen();
+  driveVals.desiredValue = 0;
+  turnVals.desiredValue = 90;
+
+  vex::task::sleep(2050);
 }

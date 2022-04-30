@@ -1,3 +1,6 @@
+#ifndef CONTROLFUNCS_H
+#define CONTROLFUNCS_H
+
 #include "vex.h"
 #include "main.h"
 
@@ -5,45 +8,56 @@
 //Pistons
 //==============================
 
-void FrontClampOpen() { 
+inline void FrontClampOpen() { 
   //open clamp
   FrontClamp.set(true); 
+  wait(10, msec);
 } 
 
-void FrontClampClose() { 
+inline void FrontClampClose() { 
   //close clamp
   FrontClamp.set(false); 
+  wait(10, msec);
+
 } 
 
-void BackTilterRetract() { 
+inline void BackTilterRetract() { 
   //set tilters to extended state
   BackTilter.set(false);
+  wait(10, msec);
+
 } 
 
-void BackTilterExtend() {
+inline void BackTilterExtend() {
   //set tilters to closed state
   BackTilter.set(true);
+  wait(10, msec);
+
 }
 
-void BackClampClose() { 
+inline void BackClampClose() { 
   //set clamp to closed state
   BackClamp.set(false); 
+  wait(10, msec);
+
 } 
 
-void BackClampOpen() { 
+inline void BackClampOpen() { 
   //set clamp to open state
   BackClamp.set(true);
+  wait(10, msec);
+
 }
 
 //==============================
 //Booleans
 //==============================
 
-void swapRingOn() {
+inline void swapRingOn() {
   ringOn = !ringOn;
 }
 
-void swapRingDirection() {
+inline void swapRingDirection() {
   ringDirection = !ringDirection;
 }
 
@@ -53,7 +67,7 @@ void swapRingDirection() {
 //==============================
 
 //Ring intake thread
-int RingIntake() {
+inline int RingIntake() {
   while (1) {
     if (ringOn) {
       if (ringDirection) {
@@ -70,3 +84,5 @@ int RingIntake() {
   }
   return 1;
 }
+
+#endif

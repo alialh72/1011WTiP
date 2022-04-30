@@ -2,8 +2,8 @@
 #define PUREPURSUIT_H
 
 #include "odom/odom.h"
-#include "path-generation/path-smoother.h"
-#include "path-generation/path-generator.h"
+#include "pathgenerator/path-smoother.h"
+#include "pathgenerator/path-generator.h"
 #include "pid/pid-controller.h"
 #include "calc-funcs.h"
 #include "rate-limiter.h"
@@ -37,10 +37,10 @@ inline double angularVel;
 
 
 //------PARAMETERERS-------
-inline double maxPathVelocity = 28; //inches per second
+inline double maxPathVelocity = 100; //inches per second
 inline double kMaxVel = 3; //[1,5] higher k --> faster around turns 
-inline double lookaheadDistance = 23;
-inline double maxAcceleration = 4; //incher per second^2
+inline double lookaheadDistance = 40;
+inline double maxAcceleration = 100; //incher per second^2
 
 
 //------PURE PURSUIT LOOP VARIABLES-------
@@ -74,8 +74,10 @@ void findClosestPoint();
 void findLookaheadPoint();
 void findCurvature();
 void calculateWheelVelocities();
-void setPathMotion(int i);
-double rateLimiter(double val, double maxRate);
+
+Path getPathMotion(int i);
+
+void driveTo(Path ogPath, int start, int end, double error, double timeLimit, bool goBackward, double speedMultiplier);
 
 
 inline Path FillPointVals(Path cpath) {

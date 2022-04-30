@@ -20,6 +20,12 @@ class PID {
     //Auto Control
     double desiredValue = 0;
 
+    PID(double k[3]) {
+      kP = k[0];
+      kI = k[1];
+      kD = k[2];
+    }
+
     void changePID(double k[3]) {
       kP = k[0];
       kI = k[1];

@@ -8,16 +8,28 @@
 #include "rate-limiter.h"
 
 //-------------------DRIVE BASE---------------------------------
-inline PID driveLeftVals;
-inline PID driveRightVals;
 
-limiter lim;
+
+inline double kDrivePure[3] = {0.021, 0.0, 0.001}; //Starting Vals (No goal being lifted)
+inline PID driveRightVals(kDrivePure);
+inline PID driveLeftVals(kDrivePure);
+
+inline double kDriveMotor[3] = {0.021, 0.0, 0.001}; //Starting Vals (No goal being lifted)
+inline double kDriveInertial[3] = {0.023, 0.0, 0.001}; //Distance sensor vals
+
+inline PID driveVals(kDriveMotor);
+inline PID turnVals(kDriveInertial);
 
 //Vars modified for use
 inline bool enableDrivePID = true;
+inline bool enablePureDrive = true;
+inline bool enableDriverPID = true;
+
+inline bool resetDriveSensors = false;
 
 int DrivePID();
-
+int PureDrive();
+int driverOnlyPID();
 
 
 

@@ -5,7 +5,8 @@
 //========================PURE PID========================
 
 int DrivePID(){
-  double kDrive[3] = {0.3, 0.0, 0.0}; //Starting Vals
+ /* double kDrive[3] = {0.3, 0.0, 0.0}; //Starting Vals
+  limiter lim;
   driveLeftVals.changePID(kDrive);
   driveRightVals.changePID(kDrive);
 
@@ -50,9 +51,84 @@ int DrivePID(){
     RightDriveUp.spin(forward, rightWheelPower, voltageUnits::volt);
 
     vex::task::sleep(20);
-  }
+  }*/
 
   return 1;
 }
 
+//===================================
 
+int PureDrive() {
+  /*while (enablePureDrive) {
+    
+    double targetL = driveLeftVals.desiredValue; //inches per second
+    double targetR = driveRightVals.desiredValue; //inches per second
+    double targetDegL = ((targetL/2)*180/M_PI)/(7/5);
+    double targetDegR = ((targetR/2)*180/M_PI)/(7/5);
+
+    LeftDrive.spin(forward, targetDegL, velocityUnits::dps);
+    LeftDriveUp.spin(forward, targetDegL, velocityUnits::dps);
+
+    RightDrive.spin(forward, targetDegR, velocityUnits::dps);
+    RightDriveUp.spin(forward, targetDegR, velocityUnits::dps);
+
+    vex::task::sleep(20);
+  }*/
+  return 1;
+}
+
+//================================================
+
+int driverOnlyPID(){
+  driveVals.changePID(kDriveMotor);
+  turnVals.changePID(kDriveMotor);
+
+  while(enableDriverPID) {
+
+    //Reset values switch
+    if (resetDriveSensors) {
+      resetDriveSensors = false;
+      InertialLeft.setRotation(0, degrees);
+      InertialRight.setRotation(0, degrees);
+      LeftDrive.setPosition(0, degrees);
+      RightDrive.setPosition(0, degrees);
+    }
+
+    //===============================================================
+    //------------LATERAL PID------------//
+
+  
+    int averagePosition = (LeftDrive.position(degrees) + RightDrive.position(degrees))/2; //averages motor position of the 2 drive
+
+    driveVals.updatePIDVals(averagePosition, false); //passes motor encoder val
+    
+
+
+    double lateralMotorPower = driveVals.calculatePower(); 
+    //===============================================================
+        
+
+
+    //===============================================================
+    //-------------TURN PID-------------//
+
+    double actualHeading = getInertialReading();
+    double turnMotorPower;
+
+    //inertial sensor switch --> inertial must be turned off when using vision
+    turnVals.updatePIDVals(actualHeading, false); //passes inertial sensor val
+    turnMotorPower = turnVals.calculatePower(); 
+
+
+    //===============================================================
+
+    LeftDrive.spin(forward, lateralMotorPower + turnMotorPower, voltageUnits::volt);
+    LeftDriveUp.spin(forward, lateralMotorPower + turnMotorPower, voltageUnits::volt);
+    RightDrive.spin(forward, lateralMotorPower - turnMotorPower, voltageUnits::volt);
+    RightDriveUp.spin(forward, lateralMotorPower - turnMotorPower, voltageUnits::volt);
+
+    vex::task::sleep(20);
+  }
+
+  return 1;
+}

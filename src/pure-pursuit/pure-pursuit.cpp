@@ -205,6 +205,12 @@ void addPath(Path desPath) {
 
 
 void PreAutonPurePursuit() {
+  //read SD Card
+  int nRead = Brain.SDcard.loadfile( "test.h", pathBuffer, sizeof(pathBuffer) );
+  for(int i=0;i<8;i++)
+    Brain.Screen.print(pathBuffer[i]);
+    Brain.Screen.newLine();
+
   //Define all path motions here to be pregenerated
 
   //_______Path 1_______

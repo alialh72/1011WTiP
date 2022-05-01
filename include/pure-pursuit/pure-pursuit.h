@@ -20,6 +20,9 @@ Angles : Radians
 
 */
 
+//-----SD CARD--------
+uint8_t pathBuffer[1000];
+
 //------BOOLEANS-----------
 inline bool enableOdom = true;
 inline bool enableFollowPath = true;

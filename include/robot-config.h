@@ -8,19 +8,19 @@ extern motor_group LeftDrive;
 extern motor_group RightDrive;
 extern motor LeftDriveUp;
 extern motor RightDriveUp;
-extern encoder TWLeft;
-extern encoder TWRight;
+extern encoder TWParallel;
 extern encoder TWHorizontal;
 extern triport Expander;
 extern motor FBLift;
 extern digital_out BackClamp;
-extern digital_out BackTilter1;
-extern digital_out BackTilter2;
+extern digital_out BackTilter;
 extern rotation FBLiftRotation;
-extern inertial InertialSensor;
+extern inertial InertialRight;
 extern distance FrontDistance;
 extern digital_out FrontClamp;
 extern motor Intake;
+extern inertial InertialLeft;
+extern controller Controller2;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.

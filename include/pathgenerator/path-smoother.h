@@ -1,9 +1,18 @@
 //Credits to Ali Al Hamadani
 //Algo taken from github: https://github.com/alialh72/SmoothPathGenerator/
 
-#include "path-generation/path-smoother.h"
 
-Segment CalcCoefficients(double alpha, double tension, Point p0, Point p1, Point p2, Point p3){
+
+#ifndef PATHSMOOTHER_H
+#define PATHSMOOTHER_H
+
+#include <vector>
+#include <vex.h>
+#include <cmath>
+#include <deque>
+#include "structs/path-struct.h"
+
+inline Segment CalcCoefficients(double alpha, double tension, Point p0, Point p1, Point p2, Point p3){
   
     
   //Catmull-Rom Spline calculations
@@ -54,8 +63,7 @@ Segment CalcCoefficients(double alpha, double tension, Point p0, Point p1, Point
 
 
 
-
-Path GenerateSmoothPath(Path path){
+inline Path GenerateSmoothPath(Path path){
     
   //Inject a starting control point and ending control point
   //--> This is because splines need 2 control points to be generated
@@ -117,7 +125,7 @@ Path GenerateSmoothPath(Path path){
     //t: [0, 1]
     //t increment: 0.1 => 10 points will be generated for each spine
     
-    for (double t = 0.1; t <= 1; t += 0.1) {
+    for (double t = 0.25; t <= 1; t += 0.25) {
         
       //point in spline = at^3 + bt^2 + ct + d
       double xVal = (currentSegment.a.at(0) * pow(t,3)) + (currentSegment.b.at(0) * pow(t,2)) + (currentSegment.c.at(0) * t) + currentSegment.d.at(0);
@@ -135,3 +143,4 @@ Path GenerateSmoothPath(Path path){
     
 }
 
+#endif

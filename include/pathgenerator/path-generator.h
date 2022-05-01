@@ -1,8 +1,44 @@
-#include "path-generation/path-generator.h"
 
-//Generate a path that can account for heading
+#include <vector>
+#include <vex.h>
+#include <cmath>
+#include <deque>
+#include "structs/path-struct.h"
 
-Path getIntersectionPoints(double m, double c, Point circleCentre, double radius) {
+//checks if a line segment intersects with circle returns t value [0,1] 
+inline double checkIntersection(Point startSegment, Point endSegment, Point circleCentre, double radius) {
+  double t1, t2;
+  Vector d(startSegment, endSegment);
+  Vector f(circleCentre, startSegment);
+
+  double a = d.Dot(d);
+  double b = 2 * f.Dot(d);
+  double c = f.Dot(f) - radius * radius;
+  double discriminant = (b * b) - (4 * a * c);
+
+  if (discriminant <= 0) {
+    return -1; // no intersection
+  }
+  else {
+    discriminant = sqrt(discriminant);
+    t1 = (-b - discriminant) / (2 * a);
+    t2 = (-b + discriminant) / (2 * a);
+
+
+    if (t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1) {
+      //return t1 intersection
+      return t1;
+    }
+    if (t2 >= 0 && t2 <= 1 && t1 >= 0 && t1 <= 1) {
+      //return t2
+      return t2;
+    }
+    return -1; //return no intersection
+  }
+
+}
+
+inline Path getIntersectionPoints(double m, double c, Point circleCentre, double radius) {
   /*
   x = (-(2mc - 2h - 2mk) ± sqrt( (2mc-2h-2mk)^2 - 4(m^2 + 1)(c^2 - 2kc + k^2 + h^2) ) / 2(m^2 +1)
   
@@ -35,7 +71,7 @@ Path getIntersectionPoints(double m, double c, Point circleCentre, double radius
 }
 
 
-Path pointsAroundArc(Point start, Point end, Point circleCentre, double radius, double cutoffPercentage) {
+inline Path pointsAroundArc(Point start, Point end, Point circleCentre, double radius, double cutoffPercentage) {
 
   Path path;
 
@@ -117,8 +153,7 @@ Path pointsAroundArc(Point start, Point end, Point circleCentre, double radius, 
 }
 
 
-
-Path createPath(Point startingPoint, Point endingPoint, double approachHeading, double avoidanceCircleRadius) {
+inline Path CreatePath(Point startingPoint, Point endingPoint, double approachHeading, double avoidanceCircleRadius) {
   Path path;
   path.addPoint(startingPoint);
 
@@ -226,7 +261,6 @@ Path createPath(Point startingPoint, Point endingPoint, double approachHeading, 
     }
 
     //add a point further inside the circle so theres a less sharp curve
-
     path.addPoint(furtherTargetPoint);
     path.addPoint(endingPoint);
 

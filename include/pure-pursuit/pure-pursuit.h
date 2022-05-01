@@ -1,8 +1,12 @@
+#ifndef PUREPURSUIT_H
+#define PUREPURSUIT_H
+
 #include "odom/odom.h"
-#include "path-generation/path-smoother.h"
-#include "path-generation/path-generator.h"
+#include "pathgenerator/path-smoother.h"
+#include "pathgenerator/path-generator.h"
 #include "pid/pid-controller.h"
 #include "calc-funcs.h"
+#include "rate-limiter.h"
 #include <vex.h>
 #include <cmath>
 #include <algorithm>
@@ -33,15 +37,16 @@ inline double angularVel;
 
 
 //------PARAMETERERS-------
-inline double maxPathVelocity = 20; //inches per second
+inline double maxPathVelocity = 100; //inches per second
 inline double kMaxVel = 3; //[1,5] higher k --> faster around turns 
-inline double lookaheadDistance = 10;
-inline double maxAcceleration = 5; //incher per second^2
-inline double trackWidth;
+inline double lookaheadDistance = 40;
+inline double maxAcceleration = 100; //incher per second^2
 
 
 //------PURE PURSUIT LOOP VARIABLES-------
-inline double prevClosestPointIndex = 0;
+inline double pathSize;
+inline double shortestDistance;
+inline double prevClosestPointIndex;
 inline double closestPointIndex;
 
 inline double aCurvatureSlope;
@@ -52,25 +57,30 @@ inline double side;
 inline double crossProduct;
 inline double signedCurvature;
 
+inline limiter l;
 //-----CALC VELOCITY--------
 inline double targetVel;
 inline double targetRW, targetLW; //target right/left wheel velocities
-inline double rateLimiterOutput;
-inline double prevRateLimiterOutput;
 
+//-----Path Numbers---------
 
+inline std::vector<Path> paths;
 
 int RunOdom();
-int UpdateVals();
+int FollowPath();
 void PurePursuitController();
+void PreAutonPurePursuit();
 void findClosestPoint();
 void findLookaheadPoint();
 void findCurvature();
 void calculateWheelVelocities();
-double rateLimiter(double val, double maxRate);
+
+Path getPathMotion(int i);
+
+void driveTo(Path ogPath, int start, int end, double error, double timeLimit, bool goBackward, double speedMultiplier);
 
 
-Path FillPointVals(Path cpath) {
+inline Path FillPointVals(Path cpath) {
   Path path = cpath; //make copy of variable
 
   double runningDistance = 0;
@@ -125,7 +135,7 @@ Path FillPointVals(Path cpath) {
   return path;
 }
 
-
+#endif
 
 
 

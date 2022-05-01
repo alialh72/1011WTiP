@@ -1,7 +1,11 @@
+#ifndef ODOM_H
+#define ODOM_H
+
 #include "vex.h"
 #include <cmath>
 #include <vector>
-
+#include "structs/point-struct.h"
+#include "calc-funcs.h"
 
 /*
 
@@ -13,51 +17,46 @@ Angles : Radians
 */
 
 
-//--------__Variables__--------//
+//----New Odom-----
+inline double arcRadiusL, arcRadiusR, arcRadius;
+inline double arcRadiusF, arcRadiusB;
+inline double offset, xOffset, yOffset;
+inline double offsetB, offsetF;
+inline double rPolar, thetaPolar;
 
-inline double prevLTval = 0, prevRTval = 0, prevBTval = 0; //previous tracking wheel encoder angle  
-inline double prevGblPos[2] = {0,0};  //Prev global position vector [x,y]
-inline double prevGblOrientation = 0; //Prev global orientation
-inline double resetGblOrientation = 0; //Prev Global orientation since last reset
+inline double motorLeftPos, motorRightPos, backWheelPos, forwardWheelPos;
+inline double motorLeftTrack, motorRightTrack, backWheelTrack, forwardWheelTrack;
 
-inline double lTval, rTval, bTval; //Current tracking wheel encoder angle  
-inline double deltaLT, deltaRT, deltaBT; //Tracking wheel distance travelled since cycle
-inline double totalDeltaLT, totalDeltaRT; //Tracking wheel total change since reset
+inline double prevRVal, prevLVal, prevBVal, prevFVal; //inches
+
+inline double prevOrientation = 0;
 inline double absOrientation = 0;
 inline double deltaOrientation = 0;
-inline double lclOffset[2] = {0,0};
-inline double avgOrientation = 0;
-inline double lclOffsetPolar[2] = {0,0};
-inline double gblOffsetPolar[2] = {0,0};
-inline double gblOffset[2] = {0,0};
+inline Point finalPosition({0,0});
 
-inline double absPos[2]= {0,0}; //*
+inline double deltaLT = 0, deltaRT = 0, deltaBT = 0, deltaFT = 0; //Tracking wheel distance travelled since cycle
+inline double totalDeltaLT = 0, totalDeltaRT = 0, totalDeltaBT = 0, totalDeltaFT = 0; //Tracking wheel total change since reset
+
+
+
+//---Funcs----
+void getWheelVals();
+void odom();
+void odomTracking();
+void initOdom();
+
 
 //--------__Parameters__--------//
 
-inline double wheelDiameter = 2.75; //wheel diameter 
-inline double lTCentre = 1.5; // Left Tracking Wheel distance to centre: Sl
-inline double rTCentre = 1.5; // Right Tracking Wheel distance to centre: Sr
-inline double bTCentre = 3.5; // Back Tracking Wheel distance to centre: Ss
+inline double wheelDiameter = 4; //wheel diameter 
+inline double lTCentre = 0; // Left Tracking Wheel distance to centre: Sl
+inline double bTCentre = 0; // Back Tracking Wheel distance to centre: Ss
 
+inline double trackWidth = 12.25; // Track Width
 
 //--------__Functions__--------//
 
-void storeVals();
-void getChangeCycle();
-void updatePrevVals();
-void calcChangeReset();
-void calcAbsOrientation();
-void calcChangeAngle();
-void calcLclOffset();
-void calcAvgOrientation();
-void calcGblOffset();
-void calcAbsPos();
-
-void fullOdomCycle();
 
 
 
-
-
-
+#endif

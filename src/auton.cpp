@@ -107,45 +107,46 @@ void rushAutoRight() {
 
   resetDriveSensors = true;
   FrontClampOpen();
-  driveVals.desiredValue = 1100;
-  turnVals.desiredValue = 0;
+  desiredMotorVal = 200;
 
-  vex::task::sleep(1050);
-
-  resetDriveSensors = true;
-  FrontClampClose();
-  driveVals.desiredValue = -1100;
   turnVals.desiredValue = 0;
 
   vex::task::sleep(1250);
 
   resetDriveSensors = true;
-  driveVals.desiredValue = 400;
+  FrontClampClose();
+  desiredMotorVal = 0;
   turnVals.desiredValue = 0;
 
-  vex::task::sleep(1050);
+  vex::task::sleep(1250);
 
-  resetDriveSensors = true;
-  BackTilterExtend();
-  BackClampOpen();
-  driveVals.desiredValue = 500;
-  turnVals.desiredValue = -90;
+  // resetDriveSensors = true;
+  // driveVals.desiredValue = 400;
+  // turnVals.desiredValue = 0;
 
-  vex::task::sleep(1050);
+  // vex::task::sleep(1050);
 
-  resetDriveSensors = true;
-  driveVals.desiredValue = -600;
-  turnVals.desiredValue = 0;
+  // resetDriveSensors = true;
+  // BackTilterExtend();
+  // BackClampOpen();
+  // driveVals.desiredValue = 500;
+  // turnVals.desiredValue = -90;
 
-  vex::task::sleep(1050);
+  // vex::task::sleep(1050);
 
-  resetDriveSensors = true;
-  BackClampClose();
-  BackTilterRetract();
-  driveVals.desiredValue = 0;
-  turnVals.desiredValue = 0;
+  // resetDriveSensors = true;
+  // driveVals.desiredValue = -600;
+  // turnVals.desiredValue = 0;
 
-  vex::task::sleep(1050);
+  // vex::task::sleep(1050);
+
+  // resetDriveSensors = true;
+  // BackClampClose();
+  // BackTilterRetract();
+  // driveVals.desiredValue = 0;
+  // turnVals.desiredValue = 0;
+
+  // vex::task::sleep(1050);
 
 }
 
@@ -158,9 +159,14 @@ void testPID(){
   //START:
 
   resetDriveSensors = true;
-  FrontClampOpen();
-  driveVals.desiredValue = 0;
-  turnVals.desiredValue = 90;
+  desiredMotorVal = 1100;
+  turnVals.desiredValue = 0;
+
+  vex::task::sleep(2050);
+
+  resetDriveSensors = true;
+  desiredMotorVal = -1100;
+  turnVals.desiredValue = 0;
 
   vex::task::sleep(2050);
 }

@@ -80,8 +80,14 @@ int PureDrive() {
 //================================================
 
 int driverOnlyPID(){
-  driveVals.changePID(kDriveMotor);
-  turnVals.changePID(kDriveMotor);
+
+  double kLMotor[3] = {0.028, 0.0, 0.001}; //Starting Vals (No goal being lifted)
+  double kRMotor[3] = {0.028, 0.0, 0.001}; //Starting Vals (No goal being lifted)
+  double kInertial[3] = {0.06, 0.001, 0.0001}; //Distance sensor vals
+
+  driveLVals.changePID(kLMotor);
+  driveRVals.changePID(kRMotor);
+  turnVals.changePID(kInertial);
 
   while(enableDriverPID) {
 
@@ -98,13 +104,18 @@ int driverOnlyPID(){
     //------------LATERAL PID------------//
 
   
-    int averagePosition = (LeftDrive.position(degrees) + RightDrive.position(degrees))/2; //averages motor position of the 2 drive
-
-    driveVals.updatePIDVals(averagePosition, false); //passes motor encoder val
+    int averagePosition = (LeftDrive.position(degrees)); //averages motor position of the 2 drive
+    driveLVals.desiredValue = desiredMotorVal;
+    driveRVals.desiredValue = desiredMotorVal;
     
+    driveLVals.updatePIDVals(LeftDrive.position(degrees), false); //passes motor encoder val
+    driveRVals.updatePIDVals(RightDrive.position(degrees), false); //passes motor encoder val
 
 
-    double lateralMotorPower = driveVals.calculatePower(); 
+
+    double lateralLMotorPower = driveLVals.calculatePower(); 
+    double lateralRMotorPower = driveRVals.calculatePower(); 
+
     //===============================================================
         
 
@@ -122,10 +133,19 @@ int driverOnlyPID(){
 
     //===============================================================
 
-    LeftDrive.spin(forward, lateralMotorPower + turnMotorPower, voltageUnits::volt);
-    LeftDriveUp.spin(forward, lateralMotorPower + turnMotorPower, voltageUnits::volt);
-    RightDrive.spin(forward, lateralMotorPower - turnMotorPower, voltageUnits::volt);
-    RightDriveUp.spin(forward, lateralMotorPower - turnMotorPower, voltageUnits::volt);
+    LeftDrive.spin(forward, lateralLMotorPower + turnMotorPower, voltageUnits::volt);
+    LeftDriveUp.spin(forward, lateralLMotorPower + turnMotorPower, voltageUnits::volt);
+    RightDrive.spin(forward, lateralRMotorPower - turnMotorPower, voltageUnits::volt);
+    RightDriveUp.spin(forward, lateralRMotorPower - turnMotorPower, voltageUnits::volt);
+
+
+    Controller1.Screen.clearScreen();
+    Controller1.Screen.setCursor(1,1);
+    Controller1.Screen.print("mpos %f, %f", LeftDrive.position(deg), RightDrive.position(deg));
+    Controller1.Screen.newLine();
+    Controller1.Screen.print("Ine: %f", actualHeading);
+    Controller1.Screen.newLine();
+
 
     vex::task::sleep(20);
   }

@@ -60,7 +60,7 @@ void pre_auton(void) {
 void autonomous(void) {
   //skillsAuto();
   //rushAutoRight();
-  testPID();
+ testPID();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -69,7 +69,44 @@ void autonomous(void) {
 
 
 
+void JoshDrive(limiter voltlimit) {
+  
+  //---------------Drivetrain---------------
+  double motorForwardVal = Controller1.Axis3.position(percent);
+  double motorTurnVal = Controller1.Axis1.position(percent);
 
+  //Volts Range:  -12 --> 12
+  double motorTurnVolts = motorTurnVal * 0.12; //convert percentage to volts
+  double motorForwardVolts = motorForwardVal * 0.12 * (1 - (std::abs(motorTurnVolts)/12) * 0.1); 
+  motorForwardVolts = voltlimit.rateLimiter(motorForwardVolts, 45);
+  double leftVolts = motorForwardVolts + motorTurnVolts;
+  double rightVolts = motorForwardVolts - motorTurnVolts;
+  
+  // leftVolts = voltlimit.rateLimiter(leftVolts, 100);
+  // rightVolts = voltlimit.rateLimiter(rightVolts, 100);
+  
+  LeftDrive.spin(forward, leftVolts, voltageUnits::volt);
+  LeftDriveUp.spin(forward, leftVolts, voltageUnits::volt);
+  RightDrive.spin(forward, rightVolts, voltageUnits::volt);
+  RightDriveUp.spin(forward, rightVolts, voltageUnits::volt);
+
+  //Four Bar Lift
+  if (Controller1.ButtonL1.pressing()) {
+    FBLift.spin(forward, 10, voltageUnits::volt);
+  } else if (Controller1.ButtonL2.pressing()) {
+    FBLift.spin(reverse, 10, voltageUnits::volt);
+  } else {
+    FBLift.stop(brakeType::hold);
+  }
+  //Front Clamp
+  Controller1.ButtonR1.pressed(FrontClampOpen);
+  Controller1.ButtonR2.pressed(FrontClampClose);
+
+  //Back Clamp
+  Controller2.ButtonUp.pressed(BackClampOpen);
+  Controller2.ButtonDown.pressed(BackClampClose);
+
+}
 
 
 void usercontrol(void) {
@@ -97,42 +134,10 @@ void usercontrol(void) {
 
 //jjkkjhkj
   while (1) {
-    odom();
-    //---------------Drivetrain---------------
-    double motorForwardVal = Controller1.Axis3.position(percent);
-    double motorTurnVal = Controller1.Axis1.position(percent);
-
-    //Volts Range:  -12 --> 12
-    double motorTurnVolts = motorTurnVal * 0.12; //convert percentage to volts
-    double motorForwardVolts = motorForwardVal * 0.12 * (1 - (std::abs(motorTurnVolts)/12) * turnImportance); 
-    motorForwardVolts = voltlimit.rateLimiter(motorForwardVolts, 45);
-    double leftVolts = motorForwardVolts + motorTurnVolts;
-    double rightVolts = motorForwardVolts - motorTurnVolts;
+    odomTracking();
     
-    // leftVolts = voltlimit.rateLimiter(leftVolts, 100);
-    // rightVolts = voltlimit.rateLimiter(rightVolts, 100);
-    
-    LeftDrive.spin(forward, leftVolts, voltageUnits::volt);
-    LeftDriveUp.spin(forward, leftVolts, voltageUnits::volt);
-    RightDrive.spin(forward, rightVolts, voltageUnits::volt);
-    RightDriveUp.spin(forward, rightVolts, voltageUnits::volt);
-
-    //Four Bar Lift
-    if (Controller1.ButtonL1.pressing()) {
-      FBLift.spin(forward, 10, voltageUnits::volt);
-    } else if (Controller1.ButtonL2.pressing()) {
-      FBLift.spin(reverse, 10, voltageUnits::volt);
-    } else {
-      FBLift.stop(brakeType::hold);
-    }
-    //Front Clamp
-    Controller1.ButtonR1.pressed(FrontClampOpen);
-    Controller1.ButtonR2.pressed(FrontClampClose);
-
-    //Back Clamp
-    Controller2.ButtonUp.pressed(BackClampOpen);
-    Controller2.ButtonDown.pressed(BackClampClose);
-
+    JoshDrive(voltlimit);
+   // AlexDrive(voltlimit);
     
     //_______CONTROLER 2_________j
 
@@ -144,16 +149,15 @@ void usercontrol(void) {
     Controller2.ButtonR1.pressed(BackTilterRetract);
     Controller2.ButtonR2.pressed(BackTilterExtend);
 
-
     Brain.Screen.clearScreen();
     Brain.Screen.setCursor(1,1);
-    Brain.Screen.print("motorPosL&R: %f, %f", LeftDrive.position(deg)*M_PI/180, RightDrive.position(deg)*M_PI/180);
+    Brain.Screen.print("trackH&PPos: %f, %f", TWHorizontal.position(deg), TWParallel.position(deg));
     Brain.Screen.newLine();
-    Brain.Screen.print("trackL&RPos: %f, %f", motorLeftPos, motorRightPos);
-    Brain.Screen.newLine();
-    Brain.Screen.print("trackR: %f   L:, %f", totalDeltaRT, totalDeltaLT);
+    Brain.Screen.print("trackFH: %f   Back:, %f", totalDeltaFT, totalDeltaBT);
     Brain.Screen.newLine();
     Brain.Screen.print("final posx: %f, %f", finalPosition.x, finalPosition.y);
+    Brain.Screen.newLine();
+    Brain.Screen.print("polar: %f, %f", rPolar, thetaPolar);
     Brain.Screen.newLine();
     Brain.Screen.print("absOrientation: %f", absOrientation);
     Brain.Screen.newLine();

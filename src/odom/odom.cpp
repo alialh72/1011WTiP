@@ -87,42 +87,34 @@ void odom() {
 }
 
 void odomTracking() {
-  getWheelVals();
+  double h; // The hypotenuse of the triangle formed by the middle of the robot on the starting position and ending position and the middle of the circle it travels around
+	double i; // Half on the angle that I've traveled
+	double h2; // The same as h but using the back instead of the side wheels
+	absOrientation = getInertialReading() * M_PI / 180;
+  deltaOrientation = absOrientation - prevOrientation; // deltaorientation The angle that I've traveled
+	if (deltaOrientation) {
+		double r = deltaRT / deltaOrientation; // The radius of the circle the robot travel's around with the right side of the robot
+		i = deltaOrientation / 2.0;
+		double sinI = sin(i);
+		h = (r * sinI) * 2.0;
 
-  absOrientation = -(getInertialReading() * M_PI / 180) + (M_PI/2);
-  deltaOrientation = absOrientation - prevOrientation;
-  prevOrientation = absOrientation;
+		double r2 = deltaBT / deltaOrientation; // The radius of the circle the robot travel's around with the back of the robot
+		h2 = (r2 * sinI) * 2.0;
+	
+  } else {
+		h = deltaRT;
+		i = 0;
 
-  if (deltaOrientation != 0) {
-    //Forward Movement
-    arcRadiusF = deltaFT/deltaOrientation;
-    arcRadiusB = deltaBT/deltaOrientation;
-    
+		h2 = deltaBT;
+	}
+	float p = i + absOrientation; // The global ending angle of the robot
+	float cosP = cos(p);
+	float sinP = sin(p);
 
-    offsetF = 2*arcRadiusF*sin(deltaOrientation/2);
-    offsetB = 2*arcRadiusB*sin(deltaOrientation/2);
+	// Update the global position
+	finalPosition.y += h * cosP;
+	finalPosition.x += h * sinP;
 
-  } 
-  else {
-    arcRadiusF = deltaFT;
-    arcRadiusB = deltaBT;
-    
-    offsetF = 2*arcRadiusF*sin(deltaOrientation/2);
-    offsetB = 2*arcRadiusB*sin(deltaOrientation/2);
-
-  }
-
-  rPolar = sqrt(pow(offsetF, 2) + pow(offsetB, 2));
-  thetaPolar = tan(offsetF/offsetB);
-  thetaPolar -= ((deltaOrientation/2) + absOrientation);
-
-  xOffset = rPolar * cos(thetaPolar);
-  yOffset = rPolar * sin(thetaPolar);
-
-  // xOffset = offsetB*cos((deltaOrientation/2) + absOrientation);
-  // yOffset = offsetF*cos((deltaOrientation/2) + absOrientation);
-    
-  finalPosition.x += xOffset;
-  finalPosition.y += yOffset;
-
+	finalPosition.y += h2 * -sinP; // -sin(x) = sin(-x)
+	finalPosition.x += h2 * cosP; // cos(x) = cos(-x)
 }

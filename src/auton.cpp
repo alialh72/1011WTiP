@@ -17,8 +17,6 @@ int brainPrint() {
     Brain.Screen.newLine();
     Brain.Screen.print("currentcoords: %f, %f", finalPosition.x, finalPosition.y);
     Brain.Screen.newLine();
-    Brain.Screen.print("current vel: %f, %f", LeftDrive.velocity(dps), RightDrive.velocity(dps));
-    Brain.Screen.newLine();
     Brain.Screen.print("target vel: %f", targetVel);
     Brain.Screen.newLine();
     Brain.Screen.print("signed curvature: %f", signedCurvature);
@@ -31,11 +29,13 @@ int brainPrint() {
     Brain.Screen.newLine();
     Brain.Screen.print("lookahead: %f, %f", lookaheadPoint.x, lookaheadPoint.y);
     Brain.Screen.newLine();
-    Brain.Screen.print("finalPoint: %f, %f", finalPath.getPoint(4).x, finalPath.getPoint(4).y);
-    Brain.Screen.newLine();
-    Brain.Screen.print("error diff: %f", getDistance(finalPosition, finalPath.getPoint(4)));
-    Brain.Screen.newLine();
     Brain.Screen.print(done);
+
+    Controller1.Screen.clearScreen();
+    Controller1.Screen.setCursor(1,1);
+    Controller1.Screen.print("error: %f", getDistance(finalPosition, finalPath.getPoint(finalPath.points.size()-1)));
+    Controller1.Screen.newLine();
+    Controller1.Screen.print("endVel: %f", finalPath.getPoint(finalPath.points.size()-1).targetVelocity);
     wait(20, msec);
   }
   return 1;
@@ -51,17 +51,20 @@ void skillsAuto()  { //2
   done = false;
   Path desPath;
   desPath = getPathMotion(0);
-  vex::task brainprint(brainPrint);
-  maxPathVelocity = 100;
+  maxPathVelocity = 150;
   maxAcceleration = 50;
+  vex::task brainprint(brainPrint);
 
-  driveTo(desPath, 0, 4, 4, 1000, false, 1);
+  driveTo(desPath, 25, 5000, false);
 
-  desPath = getPathMotion(1);
+  //desPath = getPathMotion(1);
 
-  done = true;
+  //done = true;
   //driveTo(desPath, 0, 4, 4, 1000, true, 1);
-
+  // Brain.Screen.setCursor( 1, 1 );
+  // for(int i=0;i<8;i++)
+  //   Brain.Screen.print(std::string(&pathBuffer[i]));
+  //   Brain.Screen.newLine();
 
 }
 
@@ -107,7 +110,7 @@ void rushAutoRight() {
 
   resetDriveSensors = true;
   FrontClampOpen();
-  desiredMotorVal = 200;
+  desiredMotorVal = 1200;
 
   turnVals.desiredValue = 0;
 
@@ -118,7 +121,19 @@ void rushAutoRight() {
   desiredMotorVal = 0;
   turnVals.desiredValue = 0;
 
-  vex::task::sleep(1250);
+  vex::task::sleep(350);
+
+  resetDriveSensors = true;
+  desiredMotorVal = -500;
+  turnVals.desiredValue = 0;
+  
+  vex::task::sleep(1500);
+
+  resetDriveSensors = true;
+  desiredMotorVal = 0;
+  turnVals.desiredValue = -90;
+  
+  vex::task::sleep(1500);
 
   // resetDriveSensors = true;
   // driveVals.desiredValue = 400;

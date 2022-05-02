@@ -206,10 +206,7 @@ void addPath(Path desPath) {
 
 void PreAutonPurePursuit() {
   //read SD Card
-  int nRead = Brain.SDcard.loadfile( "test.h", pathBuffer, sizeof(pathBuffer) );
-  for(int i=0;i<8;i++)
-    Brain.Screen.print(pathBuffer[i]);
-    Brain.Screen.newLine();
+  int nRead = Brain.SDcard.loadfile( "path1.txt", (uint8_t *)pathBuffer, sizeof(pathBuffer) );
 
   //Define all path motions here to be pregenerated
 
@@ -247,7 +244,7 @@ void PreAutonPurePursuit() {
 
 int RunOdom() {
   while (enableOdom) {
-    odom();
+    odomTracking();
 
     wait(20, msec);
   }
@@ -291,7 +288,7 @@ void PurePursuitController(){
 
 
 //DRIVE TO
-void driveTo(Path ogPath, int start, int end, double error, double timeLimit, bool goBackward, double speedMultiplier){
+void driveTo(Path ogPath, double error, double timeLimit, bool goBackward){
   //goBackward: 
   //__true = backward
   //__false = forward
@@ -305,8 +302,12 @@ void driveTo(Path ogPath, int start, int end, double error, double timeLimit, bo
 
   finalPath = ogPath;
   initPure();
-  while (getDistance(finalPosition, ogPath.getPoint(end)) >= error || currentTime >= timeLimit){
+  limiter velL, velR;
+  // && currentTime >= timeLimit
+  double distanceDiff = getDistance(finalPosition, ogPath.getPoint(ogPath.points.size()-1));
+  while (  distanceDiff >= error){
     currentTime = Brain.timer(msec);
+    distanceDiff = getDistance(finalPosition, ogPath.getPoint(ogPath.points.size()-1));
     findClosestPoint();
     findLookaheadPoint();
     findCurvature();
@@ -321,9 +322,6 @@ void driveTo(Path ogPath, int start, int end, double error, double timeLimit, bo
       targetDegR *= -1;
     }
 
-    targetDegL *= speedMultiplier;
-    targetDegR *= speedMultiplier;
-
     LeftDrive.spin(forward, targetDegL, velocityUnits::dps);
     LeftDriveUp.spin(forward, targetDegL, velocityUnits::dps);
 
@@ -332,16 +330,24 @@ void driveTo(Path ogPath, int start, int end, double error, double timeLimit, bo
 
     vex::task::sleep(20);
   }
+  
+  velL.prevRateLimiterOutput = LeftDrive.velocity(dps);
+  velR.prevRateLimiterOutput = RightDrive.velocity(dps);
+  while (LeftDrive.velocity(dps) != 0 && RightDrive.velocity(dps) != 0) {
+    
+    double rVel = 0;
+    double lVel = 0;
+    rVel = velL.rateLimiter(rVel, 100);
+    lVel = velL.rateLimiter(lVel, 100);
+    
+    LeftDrive.spin(forward, lVel, velocityUnits::dps);
+    LeftDriveUp.spin(forward, lVel, velocityUnits::dps);
 
+    RightDrive.spin(forward, rVel, velocityUnits::dps);
+    RightDriveUp.spin(forward, rVel, velocityUnits::dps);
 
-  // while (LeftDrive.velocity(dps) != 0 && RightDrive.velocity(dps) != 0) {
-  //   LeftDrive.stop(brakeType::hold);
-  //   LeftDriveUp.stop(brakeType::hold);
-  //   RightDrive.stop(brakeType::hold);
-  //   RightDriveUp.stop(brakeType::hold);
-
-  //   vex::task::sleep(20);
-  // }
+    vex::task::sleep(20);
+  }
 
 
 }

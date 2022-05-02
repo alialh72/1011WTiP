@@ -62,7 +62,7 @@ inline double calcFractionalT(Path path, Point robotPos, double lookahead, doubl
 
   double largestTVal = startingLargest;
   //loop through path up until last point
-  for (int i = 0; i <= path.points.size()-1; i++) {
+  for (int i = 0; i < path.points.size()-1; i++) {
     //start and end points of vector
     Point startPoint = path.getPoint(i);
     Point endPoint = path.getPoint(i + 1);

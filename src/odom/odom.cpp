@@ -76,8 +76,6 @@ void odom() {
     
     offset = 2*arcRadius*sin(deltaOrientation/2);
   }
-
-
   xOffset = offset*sin((deltaOrientation/2) + absOrientation);
   yOffset = offset*cos((deltaOrientation/2) + absOrientation);
     
@@ -87,18 +85,19 @@ void odom() {
 }
 
 void odomTracking() {
-  double h; // The hypotenuse of the triangle formed by the middle of the robot on the starting position and ending position and the middle of the circle it travels around
-	double i; // Half on the angle that I've traveled
-	double h2; // The same as h but using the back instead of the side wheels
+  getWheelVals();
+  
 	absOrientation = getInertialReading() * M_PI / 180;
   deltaOrientation = absOrientation - prevOrientation; // deltaorientation The angle that I've traveled
+  prevOrientation = absOrientation;
+
 	if (deltaOrientation) {
-		double r = deltaRT / deltaOrientation; // The radius of the circle the robot travel's around with the right side of the robot
+		r = deltaRT / deltaOrientation; // The radius of the circle the robot travel's around with the right side of the robot
 		i = deltaOrientation / 2.0;
-		double sinI = sin(i);
+	  sinI = sin(i);
 		h = (r * sinI) * 2.0;
 
-		double r2 = deltaBT / deltaOrientation; // The radius of the circle the robot travel's around with the back of the robot
+		r2 = deltaBT / deltaOrientation; // The radius of the circle the robot travel's around with the back of the robot
 		h2 = (r2 * sinI) * 2.0;
 	
   } else {
@@ -107,14 +106,14 @@ void odomTracking() {
 
 		h2 = deltaBT;
 	}
-	float p = i + absOrientation; // The global ending angle of the robot
-	float cosP = cos(p);
-	float sinP = sin(p);
+	double p = i + absOrientation; // The global ending angle of the robot
+	double cosP = cos(p);
+	double sinP = sin(p);
 
 	// Update the global position
 	finalPosition.y += h * cosP;
 	finalPosition.x += h * sinP;
 
-	finalPosition.y += h2 * -sinP; // -sin(x) = sin(-x)
+	finalPosition.y += h2 * (-sinP); // -sin(x) = sin(-x)
 	finalPosition.x += h2 * cosP; // cos(x) = cos(-x)
 }

@@ -2,7 +2,10 @@
 #define CONTROLFUNCS_H
 
 #include "vex.h"
-#include "main.h"
+
+inline bool ringOn = false;
+inline bool ringDirection = true; //true --> forward, false --> reverse
+inline bool brakeTypeBool = true; //true --> hold, false --> coast
 
 //==============================
 //Pistons
@@ -71,9 +74,9 @@ inline int RingIntake() {
   while (1) {
     if (ringOn) {
       if (ringDirection) {
-        Intake.spin(forward, 12, voltageUnits::volt);
+        Intake.spin(forward, 250, velocityUnits::rpm);
       } else {
-        Intake.spin(reverse, 12, voltageUnits::volt);
+        Intake.spin(reverse, 250, velocityUnits::rpm);
       }
 
     } else {

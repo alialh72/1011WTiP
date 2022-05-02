@@ -5,6 +5,7 @@
 #include <cmath>
 #include "pure-pursuit/pure-pursuit.h"
 #include "control-funcs.h"
+#include <string>
 
 void testAuto();
 void skillsAuto();

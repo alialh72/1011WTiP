@@ -21,7 +21,7 @@ Angles : Radians
 */
 
 //-----SD CARD--------
-uint8_t pathBuffer[1000];
+inline char pathBuffer[1000];
 
 //------BOOLEANS-----------
 inline bool enableOdom = true;
@@ -80,7 +80,7 @@ void calculateWheelVelocities();
 
 Path getPathMotion(int i);
 
-void driveTo(Path ogPath, int start, int end, double error, double timeLimit, bool goBackward, double speedMultiplier);
+void driveTo(Path ogPath, double error, double timeLimit, bool goBackward);
 
 
 inline Path FillPointVals(Path cpath) {

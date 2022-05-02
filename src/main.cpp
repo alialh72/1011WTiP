@@ -32,6 +32,7 @@
 
 #include "vex.h"
 #include "control-funcs.h"
+#include "main.h"
 #include <cmath>
 
 using namespace vex;
@@ -59,8 +60,8 @@ void pre_auton(void) {
 //easy swap between autos
 void autonomous(void) {
   //skillsAuto();
-  //rushAutoRight();
- testPID();
+  rushAutoRight();
+ //testPID();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -68,49 +69,8 @@ void autonomous(void) {
 /*---------------------------------------------------------------------------*/
 
 
-
-void JoshDrive(limiter voltlimit) {
-  
-  //---------------Drivetrain---------------
-  double motorForwardVal = Controller1.Axis3.position(percent);
-  double motorTurnVal = Controller1.Axis1.position(percent);
-
-  //Volts Range:  -12 --> 12
-  double motorTurnVolts = motorTurnVal * 0.12; //convert percentage to volts
-  double motorForwardVolts = motorForwardVal * 0.12 * (1 - (std::abs(motorTurnVolts)/12) * 0.1); 
-  motorForwardVolts = voltlimit.rateLimiter(motorForwardVolts, 45);
-  double leftVolts = motorForwardVolts + motorTurnVolts;
-  double rightVolts = motorForwardVolts - motorTurnVolts;
-  
-  // leftVolts = voltlimit.rateLimiter(leftVolts, 100);
-  // rightVolts = voltlimit.rateLimiter(rightVolts, 100);
-  
-  LeftDrive.spin(forward, leftVolts, voltageUnits::volt);
-  LeftDriveUp.spin(forward, leftVolts, voltageUnits::volt);
-  RightDrive.spin(forward, rightVolts, voltageUnits::volt);
-  RightDriveUp.spin(forward, rightVolts, voltageUnits::volt);
-
-  //Four Bar Lift
-  if (Controller1.ButtonL1.pressing()) {
-    FBLift.spin(forward, 10, voltageUnits::volt);
-  } else if (Controller1.ButtonL2.pressing()) {
-    FBLift.spin(reverse, 10, voltageUnits::volt);
-  } else {
-    FBLift.stop(brakeType::hold);
-  }
-  //Front Clamp
-  Controller1.ButtonR1.pressed(FrontClampOpen);
-  Controller1.ButtonR2.pressed(FrontClampClose);
-
-  //Back Clamp
-  Controller2.ButtonUp.pressed(BackClampOpen);
-  Controller2.ButtonDown.pressed(BackClampClose);
-
-}
-
-
 void usercontrol(void) {
-  limiter voltlimit;
+  limiter voltlimit, armlimit;
 
   vex::controller Controller1 (vex::controllerType::primary);
   vex::controller Controller2 (vex::controllerType::partner);
@@ -136,8 +96,45 @@ void usercontrol(void) {
   while (1) {
     odomTracking();
     
-    JoshDrive(voltlimit);
-   // AlexDrive(voltlimit);
+    //---------------Drivetrain---------------
+    double motorForwardVal = Controller1.Axis3.position(percent);
+    double motorTurnVal = Controller1.Axis1.position(percent);
+
+    //Volts Range:  -12 --> 12
+    double motorTurnVolts = motorTurnVal * 0.12; //convert percentage to volts
+    double motorForwardVolts = motorForwardVal * 0.12 * (1 - (std::abs(motorTurnVolts)/12) * 0.1); 
+    motorForwardVolts = voltlimit.rateLimiter(motorForwardVolts, 45);
+    double leftVolts = motorForwardVolts + motorTurnVolts;
+    double rightVolts = motorForwardVolts - motorTurnVolts;
+    
+    // leftVolts = voltlimit.rateLimiter(leftVolts, 100);
+    // rightVolts = voltlimit.rateLimiter(rightVolts, 100);
+    
+    LeftDrive.spin(forward, leftVolts, voltageUnits::volt);
+    LeftDriveUp.spin(forward, leftVolts, voltageUnits::volt);
+    RightDrive.spin(forward, rightVolts, voltageUnits::volt);
+    RightDriveUp.spin(forward, rightVolts, voltageUnits::volt);
+
+    //Four Bar Lift
+    if (Controller1.ButtonL1.pressing()) {
+      double volts = 10;
+      volts = armlimit.rateLimiter(volts, 5);
+      FBLift.spin(forward, 10, voltageUnits::volt);
+    } else if (Controller1.ButtonL2.pressing()) {
+      double volts = 10;
+      volts = armlimit.rateLimiter(volts, 5);
+      FBLift.spin(reverse, 10, voltageUnits::volt);
+    } else {
+      FBLift.stop(brakeType::hold);
+    }
+    //Front Clamp
+    Controller1.ButtonR1.pressed(FrontClampOpen);
+    Controller1.ButtonR2.pressed(FrontClampClose);
+
+    //Back Clamp
+    Controller1.ButtonUp.pressed(BackClampOpen);
+    Controller1.ButtonDown.pressed(BackClampClose);
+   // AlexDrive(voltlimit);j
     
     //_______CONTROLER 2_________j
 
@@ -157,11 +154,11 @@ void usercontrol(void) {
     Brain.Screen.newLine();
     Brain.Screen.print("final posx: %f, %f", finalPosition.x, finalPosition.y);
     Brain.Screen.newLine();
-    Brain.Screen.print("polar: %f, %f", rPolar, thetaPolar);
+    Brain.Screen.print("h: %f ,  h2: %f", h, h2);
     Brain.Screen.newLine();
     Brain.Screen.print("absOrientation: %f", absOrientation);
     Brain.Screen.newLine();
-    Brain.Screen.print("inertial: %f", getInertialReading());
+    Brain.Screen.print("prevOri: %f", prevOrientation);
     Brain.Screen.newLine();
     Brain.Screen.print("deltaOrientation: %f", deltaOrientation);
 
@@ -176,6 +173,7 @@ void usercontrol(void) {
 //
 // Main will set up the competition functions and callbacks.
 //
+
 int main() {
   // Set up callbacks for autonomous and driver control periods.
   Competition.autonomous(autonomous);

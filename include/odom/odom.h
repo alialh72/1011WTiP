@@ -38,7 +38,11 @@ inline double deltaLT = 0, deltaRT = 0, deltaBT = 0, deltaFT = 0; //Tracking whe
 inline double totalDeltaLT = 0, totalDeltaRT = 0, totalDeltaBT = 0, totalDeltaFT = 0; //Tracking wheel total change since reset
 
 
-
+inline double h; // The hypotenuse of the triangle formed by the middle of the robot on the starting position and ending position and the middle of the circle it travels around
+inline double i; // Half on the angle that I've traveled
+inline double h2; // The same as h but using the back instead of the side wheels
+inline double r, r2; // The radius of the circle the robot travel's around with the right side of the robot
+inline double sinI;
 //---Funcs----
 void getWheelVals();
 void odom();
